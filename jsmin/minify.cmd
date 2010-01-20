@@ -9,3 +9,4 @@ java -jar yuicompressor-2.4.2.jar ..\js\jquery.trackit.modules.js -o ..\deploy\j
 java -jar yuicompressor-2.4.2.jar ..\js\jquery.trackit.plugins.js -o ..\deploy\jquery.trackit.plugins-2.0.min.js --charset utf-8
 
 copy /b ..\deploy\*.js ..\deploy\jquery.trackit-2.0.min.js
+copy /b ..\js\*.js ..\deploy\jquery.trackit-2.0.dev.js

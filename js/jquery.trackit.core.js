@@ -95,6 +95,10 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 		// set ready to start accepting new events
 		this.__READY = [];
 		
+		// create an empty track queue
+		this.__TRACK_QUEUE = [];
+		this.ready(function() { self.RunTrackQueue(); });
+		
 		// extend global placeholders
 		if( options.GlobalHolders ) { $.extend( this.BuiltInHolders, options.GlobalHolders ); }
 		
@@ -252,7 +256,8 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			} else if( this.DudHtmlLink === undefined ) { 
 				// create a dud link, hide it. this is used for links from flash
 				$.TrackIt.DudHtmlLink = this.DudHtmlLink = $("<a></a>")
-					.css("display","none");
+					.css("display","none")
+					.attr("href","#nojs");
 
 				$(document.body).append( this.DudHtmlLink );
 			}
@@ -490,6 +495,11 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 		 * @param {object} options an object where each key will be processed as a holder, options.ele can also be a HtmlLinkElement
 		 */
 		track: function(key, options) {
+			if( ! this.isReady ) { 			
+				this.QueueTrackEvent(key, options);
+				return;
+			}
+			
 			// if a string comes back as options, this is most likely flash, so eval it
 			if( typeof options === "string" ) {
 				// this was in the jquery library, line 3725
@@ -524,6 +534,19 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			}
 			
 			if( this.settings.ShowDebugInfo ) { console.groupEnd(); }
+		},
+		
+		QueueTrackEvent: function( key, options ) {
+			this.__TRACK_QUEUE.push({
+				key: key,
+				options: options				
+			});
+		},
+		
+		RunTrackQueue: function() {
+			for( var obj in this.__TRACK_QUEUE ) {
+				this.track( obj.key, obj.options );
+			}
 		},
 		
 		/**
@@ -734,3 +757,4 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 		}
 	});	
 })(jQuery);
+
