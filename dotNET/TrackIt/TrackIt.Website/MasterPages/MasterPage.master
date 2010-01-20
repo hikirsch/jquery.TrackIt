@@ -1,0 +1,30 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="MasterPage.master.cs" Inherits="TrackIt.Website.MasterPages.MasterPage" %>
+<%@ Register Src="~/UserControls/Structural/Header.ascx" TagName="Header" TagPrefix="TrackIt" %>
+<%@ Register Src="~/UserControls/Structural/Footer.ascx" TagName="Footer" TagPrefix="TrackIt" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" >
+    <head runat="server">
+        <title>Untitled Page</title>
+        <asp:ContentPlaceHolder ID="head" runat="server" />
+        <style type="text/css">
+            @import url( /Assets/css/screen.css );
+        </style>
+        <script type="text/javascript" src="/Assets/js/jquery-1.3.2.js"></script>
+        <script type="text/javascript" src="/Assets/js/jquery.blockUI.js"></script>
+        <script type="text/javascript" src="/Assets/js/Site.js"></script>
+    </head>
+    <body>
+        <form id="form1" runat="server">
+            <div class="pageContainer">
+                <TrackIt:Header runat="server" />
+                
+                <div class="contentContainer">
+                    <asp:ContentPlaceHolder ID="MainContentPlaceHolder" runat="server" />
+                </div>
+                
+                <TrackIt:Footer runat="server" />
+            </div>
+        </form>
+    </body>
+</html>

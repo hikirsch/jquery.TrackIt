@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<track>
+	<trackEvent eventName="Page Load" event="pageView" urlMap="*">
+		<pageName>[TITLE] > [TEXT] > [HREF]</pageName>
+		<eVar1>this is eVar1</eVar1>
+		<eVar2>[URL]</eVar2>
+	</trackEvent>
+	<trackEvent eventName="Test Event" event="click">
+		<eVar2>this is a test eVar [HREF]</eVar2>
+		<events>event20</events>
+	</trackEvent>
+</track>

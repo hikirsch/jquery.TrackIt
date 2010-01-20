@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<title>jquery.trackit.js - QUnit Tests</title>
+		
+		<script type="text/javascript" src="../js/s_code.js"></script>
+		
+		<!-- <script type="text/javascript" src="../jQuery/jquery-1.3.2.js"></script> -->
+		<script type="text/javascript" src="../jQuery/jquery-1.4.js"></script>
+		
+		<!-- <script type="text/javascript" src="../js/jquery.trackit-2.0.min.js"></script> -->
+		
+		<script type="text/javascript" src="../js/jquery.trackit.core.js"></script>
+		<script type="text/javascript" src="../js/jquery.trackit.modules.js"></script>
+		<script type="text/javascript" src="../js/jquery.trackit.plugins.js"></script>
+		
+		<script type="text/javascript" src="../tests/jquery.trackit.tests.js"></script>
+		<script type="text/javascript" src="../tests/jquery.trackit.tests-AL.js"></script>
+
+		<link rel="stylesheet" href="qunit.css" type="text/css" />
+	</head>
+	<body>
+		<script type="text/javascript" src="qunit.js"></script>
+		<script type="text/javascript">
+			// global function to run all tests
+			var RunTests = function( allTests ) {
+				for( var testName in allTests ) {			
+					test( testName, allTests[testName] );
+				}
+			}
+
+			// each test suite is an object, each key is a test.
+			// run the "TrackItTests" suite
+			$( function(){ RunTests( TrackItTests ); } );
+
+			// run Aaron's test suite, "TrackItTestsAL"
+			// $( function() { RunTests( TrackItTestsAL ); } );
+		</script>
+		<h1 id="qunit-header">jquery.trackit.js - QUnit Tests</h1>
+		<h2 id="qunit-banner"></h2>
+		<h2 id="qunit-userAgent"></h2>
+		<ol id="qunit-tests"></ol>
+	</body>
+</html>
+	

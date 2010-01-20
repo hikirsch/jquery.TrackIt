@@ -1,0 +1,23 @@
+﻿blockquote, body, dd, div, dl, dt, fieldset, form, h1, h2, h3, h4, h5, h6, html, img, input, label, legend, li, ol, p, pre, th, td, ul { padding: 0; margin: 0; }
+
+a { outline: none; }
+
+address, caption, cite, code, dfn, em, strong, th, var { font-style: normal; font-weight: normal; }
+
+table { empty-cells: show; border-collapse: collapse; border-spacing: 0; }
+
+fieldset, img { border: 0; }
+
+caption, th { text-align: left; }
+q:before, q:after { content: ''; }
+
+.clearfix:after { content: "."; display: block; height: 0; clear: both; visibility: hidden; }
+.clearfix { min-height: 1px; _height: 1px; }
+.clear { clear: both; }
+
+.hidden { display: none !important; }
+
+ul { padding: 0 0 0 15px; margin: 0; }
+ul li { padding: 0; margin: 0; }
+
+.noListStyle, .noListStyle li { list-style: none; padding: 0; }

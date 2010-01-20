@@ -1,0 +1,52 @@
+﻿@import url( reset.css );
+
+a.icon { display: block; text-indent: -9999px; width: 24px; height: 24px; background-repeat: no-repeat; background-position: 0 0; display: block; } 
+a.iconXML { background-image: url( ../img/xml.png ); }
+a.iconDelete { background-image: url( ../img/delete.png ); }
+a.iconEdit { background-image: url( ../img/edit.png ); }
+
+body { font-family: Arial; font-size: 12px; padding: 20px; }
+
+h1 { font-size: 26px; }
+h2 { padding: 5px 0 10px; }
+h3 { padding-bottom: 10px; }
+
+.pageContainer { width: 750px; }
+
+.headerContainer { padding-bottom: 10px; }
+
+.footerContainer { padding-top: 20px; }
+.footerContainer ul li { float: left; padding-right: 5px; }
+
+.actionButtons  { padding-bottom: 10px; }
+
+.breadcrumbContainer li { float: left; padding-right: 3px; } 
+
+table.listingTable { border-left: 1px solid #000; width: 100%; }
+table.listingTable th { padding: 3px 10px; font-weight: bold; color: #fff; background-color: #000; font-size: 16px; }
+table.listingTable th.icon { width: 30px; }
+table.listingTable th.type { width: 100px; }
+table.listingTable td { padding: 6px 10px; border-right: 1px solid #000; border-bottom: 1px solid #000; }
+table.listingTable tr.hover { background-color: #fcc; cursor: pointer; }
+table.listingTable td a.icon { margin: auto; }
+table.listingTable td a { text-decoration: none; font-weight: bold; color: #000; }
+
+.dialogBox { cursor: auto; background-repeat: no-repeat; background-position: 10px 36px; text-align: left; }
+.confirmDialogBox { background-image: url( ../img/question_and_answer.png ); }
+.infoDialogBox { background-image: url( ../img/info.png ); }
+.addSiteBox { background-image: url( ../img/site_add.png ); }
+.dialogBox h5 { padding: 5px; background-color: #000; color: #fff; font-size: 14px; font-weight: bold; }
+.dialogBox p { padding: 12px 8px 4px 65px }
+.dialogBox a.closeButton { float: right; display: block; width: 10px; height: 10px; background: url( ../img/img-close_button.gif ) 0 0 no-repeat; text-indent: -9999px; overflow: hidden; }
+.dialogBox .buttonContainer { text-align: center; padding: 5px 0; }
+.dialogBox .buttonContainer input { margin: 0 5px; padding: 3px; font-size: 14px; width: 100px; }
+.dialogBox .buttonContainer input.createButton { width: 150px; }
+
+.jsonFieldList { padding: 10px 0 5px; }
+.jsonFieldList .error label { color: #f00; }
+.jsonFieldList .error input { border: 1px solid red; }
+.jsonFieldList li { clear: both; padding-top: 10px; }
+.jsonFieldList label { float: left; width: 110px; text-align: right; padding: 1px 5px 0 0; }  
+.jsonFieldList input { float: left; width: 290px; border: 1px solid #888; }
+.jsonFieldList select { width: 280px; border: 1px solid #888; }
+.growlUI { text-align: left; background-color: #000; opacity: 1.0; }
