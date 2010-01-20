@@ -36,8 +36,8 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
  *************************************************************************
  * @author Aaron Lisman (Aaron.Lisman@ogilvy.com)
  * @author Adam S. Kirschner (AdamS.Kirschner@ogilvy.com)
- * $Rev: 156 $
- * $Date: 2010-01-17 14:04:44 -0500 (Sun, 17 Jan 2010) $
+ * $Rev: 160 $
+ * $Date: 2010-01-19 14:37:50 -0500 (Tue, 19 Jan 2010) $
  * $Author: adams.kirschner@ogilvy.com $
  * $HeadURL: https://svn.ogilvy.com/repos/OgilvyInteractive/projects/TrackingPlugin/trunk/js/jquery.trackit.core.js $
  *************************************************************************
@@ -230,7 +230,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			var key = $(ele).attr(this.settings.TrackKeyAttribute);	
 			
 			// if the tracking attribute has a valid value in it, then this element should be tracked
-			if( key !== undefined && key.text().length > 0 ) {
+			if( key !== undefined && key.length > 0 ) {
 				
 				// track it and send the link ele as an option
 				this.track(key, { ele: ele });
@@ -385,10 +385,11 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 		 * @param {function} callback a callback method to be called when the plugin is ready
 		 */
 		ready: function( callback ) {
+			var self = this;
 			
 			// if its already ready, just run it
 			if(  this.isReady ) { 
-				callback.apply( self ); 
+				callback.apply( self, [] ); 
 			} else {
 				
 				// if we're not ready and its a function, queue it up
@@ -403,7 +404,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 					
 					// dequeue and run all the functions
 					$.each( this.__READY, function(){ 
-						this.apply( self );
+						this.apply( self, [] );
 					});
 					
 					// remove the callbacks

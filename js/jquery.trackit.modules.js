@@ -3,8 +3,8 @@
  *************************************************************************
  * @author Aaron Lisman (Aaron.Lisman@ogilvy.com)
  * @author Adam S. Kirschner (AdamS.Kirschner@ogilvy.com)
- * $Rev: 155 $
- * $Date: 2010-01-17 13:28:40 -0500 (Sun, 17 Jan 2010) $
+ * $Rev: 163 $
+ * $Date: 2010-01-19 17:50:10 -0500 (Tue, 19 Jan 2010) $
  * $Author: adams.kirschner@ogilvy.com $
  * $HeadURL: https://svn.ogilvy.com/repos/OgilvyInteractive/projects/TrackingPlugin/trunk/js/jquery.trackit.modules.js $
  *************************************************************************
@@ -74,9 +74,10 @@
 				
 				// omniture needs to know all the variables we are settings asside
 				// from just setting it, add all the variable names to an array
+				
 				var linkTrackVars = [];
 				for( var varName in data ) { 
-					if( !( excludeVars[varName] ) ) { linkTrackVars.push( varName ); }
+					if( $(excludeVars).index(varName) == -1 ) { linkTrackVars.push( varName ); }
 				}
 				
 				// join the array with and tell omniture these are the variables
@@ -118,7 +119,7 @@
 					
 					// clear the dud link
 					this.DudHtmlLink
-							.attr('href', '' )
+							.attr('href', '#nojs' )
 							.text( '' );
 							
 					// clean up, clear out all the values that were set
