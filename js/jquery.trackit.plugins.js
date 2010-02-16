@@ -3,10 +3,6 @@
  *************************************************************************
  * @author Aaron Lisman (Aaron.Lisman@ogilvy.com)
  * @author Adam S. Kirschner (AdamS.Kirschner@ogilvy.com)
- * $Rev: 155 $
- * $Date: 2010-01-17 13:28:40 -0500 (Sun, 17 Jan 2010) $
- * $Author: adams.kirschner@ogilvy.com $
- * $HeadURL: https://svn.ogilvy.com/repos/OgilvyInteractive/projects/TrackingPlugin/trunk/js/jquery.trackit.plugins.js $
  *************************************************************************
  */
 (function($){
@@ -14,7 +10,7 @@
 	 * A collection of Plugins available to use with TrackIt.
 	 * @name TrackItPlugins
 	 **/
-	window.TrackItPlugins = {
+	$.TrackItPlugins = {
 		/**
 		 * The data sanity checker will iterate through each track key and process all the holders within 
 		 * each variable. It will detect whether or not a valid holder replacement was found or not. An
@@ -23,7 +19,7 @@
 		 * 
 		 * @name DataSanityCheck
 		 * @memberOf TrackItPlugins
-		 */
+		 */	
 		DataSanityCheck: { 
 			/**
 			 * Init function for the Data Sanity Check
@@ -31,7 +27,7 @@
 			 * name Init
 			 * memberOf DataSanityCheck
 			 */
-			Init: function() { this.ready( window.TrackItPlugins.DataSanityCheck.Go ); },
+			Init: function() { this.ready( $.TrackItPlugins.DataSanityCheck.Go ); },
 			/**
 			 * Go function for the Data Sanity Check. Implementation for this plugin is here.
 			 * 
@@ -43,9 +39,9 @@
 				holderStatus = {};
 				if( ! flashValidHolders ) { flashValidHolders = {} ; }
 				if( ! flashInvalidHolders ) { flashInvalidHolders = {} ; }
-				for( var key in this.TrackData ) {
+				for( var key in this.Data ) {
 					if( ! this.settings.SanityCheckMissingOnly ) { holderStatus[key] = {}; }
-					keyData = cloneObj( this.TrackData[key] );
+					keyData = cloneObj( this.Data[key] );
 					for( var varName in keyData ) {
 						var str = keyData[varName];
 						if (typeof str == 'string') {
@@ -55,7 +51,7 @@
 									var holder = holders[i];
 									var splitArr = holder.toString().substring(1,(holder.length-1)).toString().split(":");
 									var command = splitArr[0]; var value = splitArr[1];
-									if( ! ( this.BuiltInHolders[command] ) &&
+									if( ! ( this.Holders[command] ) &&
 										! ( keyData[command] ) &&
 										! ( flashValidHolders[command] ) ) {
 										if( ! holderStatus[key] ) { holderStatus[key] = {}; }
@@ -107,8 +103,8 @@
 							
 				var regex = new RegExp("(\\d+)","g");
 				var newEVars = {};
-				for( var key in this.TrackData ) {
-					keyData = this.TrackData[key];
+				for( var key in this.Data ) {
+					keyData = this.Data[key];
 					for( var varName in keyData ) {
 						if( varName.indexOf( "prop" ) > -1 ) {
 							var i = varName.match(regex)[0];
@@ -142,7 +138,7 @@
 			 * @name Init
 			 * @memberOf CheckUrlMapping
 			 */
-			Init: function(){ this.ready( window.TrackItPlugins.CheckUrlMapping.Go ); },
+			Init: function(){ this.ready( $.TrackItPlugins.CheckUrlMapping.Go ); },
 			/**
 			 * Go function for the check url mapping. Implementation for this plugin is here.
 			 * 
@@ -162,8 +158,8 @@
 					if( this.settings.ShowDebugInfo ) { console.info("TrackItPlugins.CheckUrlMapping.Go() - Check against URL: ", document.location.pathname); }
 					var found = false;
 					// go through each track key
-					for( var trackKey in this.TrackData ) {
-						var trackObj = this.TrackData[trackKey];
+					for( var trackKey in this.Data ) {
+						var trackObj = this.Data[trackKey];
 
 						// ensure that a url mapping exists
 						if( trackObj.urlMap ) {
@@ -212,11 +208,11 @@
 				this.__LAST_REPORT = {};
 				
 				this.addCallback('afterTrack', function(options) { 
-					window.TrackItPlugins.RecordLastTrack.__LAST_REPORT = $.extend( window.TrackItPlugins.RecordLastTrack.__LAST_REPORT, options.parsedData);
+					$.TrackItPlugins.RecordLastTrack.__LAST_REPORT = $.extend( $.TrackItPlugins.RecordLastTrack.__LAST_REPORT, options.parsedData);
 					if( this.settings.ShowDebugInfo ) { console.info("TrackItPlugins.RecordLastTrack() - Last data set saved!"); }
 				});
 			
-				this.BuiltInHolders["LAST"] = window.TrackItPlugins.RecordLastTrack.LastHolder;
+				this.Holders["LAST"] = $.TrackItPlugins.RecordLastTrack.LastHolder;
 			},
 			/**
 			 * This function is executed on the 'afterTrack' call back event. When it is called, it will store the tracking results from
@@ -227,8 +223,8 @@
 			 * @memberOf TrackItPlugins
 			 */
 			LastHolder: function(options) {
-				if( window.TrackItPlugins.RecordLastTrack.__LAST_REPORT && window.TrackItPlugins.RecordLastTrack.__LAST_REPORT[options.value] ) { 
-					return window.TrackItPlugins.RecordLastTrack.__LAST_REPORT[options.value];
+				if( $.TrackItPlugins.RecordLastTrack.__LAST_REPORT && $.TrackItPlugins.RecordLastTrack.__LAST_REPORT[options.value] ) { 
+					return $.TrackItPlugins.RecordLastTrack.__LAST_REPORT[options.value];
 				} else {
 					if( options.instance.settings.ShowDebugInfo ) { console.warn( "TrackItPlugins.RecordLastTrack() - LAST value request not found '" + options.value + "'")}
 				}

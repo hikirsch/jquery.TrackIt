@@ -3,10 +3,6 @@
  *************************************************************************
  * @author Aaron Lisman (Aaron.Lisman@ogilvy.com)
  * @author Adam S. Kirschner (AdamS.Kirschner@ogilvy.com)
- * $Rev: 163 $
- * $Date: 2010-01-19 17:50:10 -0500 (Tue, 19 Jan 2010) $
- * $Author: adams.kirschner@ogilvy.com $
- * $HeadURL: https://svn.ogilvy.com/repos/OgilvyInteractive/projects/TrackingPlugin/trunk/js/jquery.trackit.modules.js $
  *************************************************************************
  */
 (function($){
@@ -16,27 +12,31 @@
 	 * of the correct event that was passed. The TrackEvent function will also receive the element that the event fired from.
 	 * 
 	 * @class
-	 * @name TrackingModules
+	 * @name TrackItModules
 	 */
-	window.TrackingModules = {
+	window.TrackItModules = {
 		/**
-		 * !!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!
-		 * THIS IMPLEMENTATION WAS NOT TESTED WITH VERSION 2.0 
-		 * THESE CALLBACKS SHOULD BE CHECKED AND CONFIRMED WITH 
-		 * GOOGLE ANALYTICS!
-		 * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		 * These are the Google Analytics methods needed for TrackIt to track.
 		 * @class
 		 * @name GoogleAnalytics
-		 * @memberOf TrackingModules
+		 * @memberOf TrackItModules
 		 */
 		GoogleAnalytics: {
 			/**
 			 * @field
 			 * @name Type
 			 * @type string
-			 * @memberOf TrackingModules.GoogleAnalytics
+			 * @memberOf TrackItModules.GoogleAnalytics
 			 */
 			Type: "Google Analytics",
+			
+			/**
+			 * This is the Google Analaytics implementation of the TrackEvent. This handles all special cases in terms 
+			 * of being able to track the proper variables.
+			 * 
+			 * @param {Object} data the parsed data that should be reported.
+			 * @param {HtmlElement} ele the HtmlElement that the event fired from
+			 */
 			DoTrackEvent: function(data, ele){				
 				if( this.settings.ShowDebugInfo ) {
 					console.info(data);
@@ -52,6 +52,13 @@
 				}
 			}
 		},
+		
+		/**
+		 * These are the Omniture methods needed for TrackIt to track.
+		 * @class
+		 * @name Omniture
+		 * @memberOf TrackItModules
+		 */
 		Omniture: {
 			Type: "Omniture",
 			/**
@@ -69,7 +76,7 @@
 				$.extend( s, data );
 				
 				// these are TrackIt specific attributes used, we don't want this to merge with the tracker at all.
-				var excludeVars = [ "type", "event", "urlMap", "customLinkName" ];
+				var excludeVars = [ "type", "urlMap", "customLinkName" ];
 				$.each( excludeVars, function() { delete s[this] } );
 				
 				// omniture needs to know all the variables we are settings asside

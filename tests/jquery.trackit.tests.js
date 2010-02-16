@@ -3,7 +3,7 @@ var TrackItTests = {
 	 * Checks to make sure that the tracking module gets created and that Omniture is available.
 	 */
 	InitTrackItOmniture: function() { 
-		var tracker = $.initTrackIt('omniture',{});
+		var tracker = new $.TrackIt('omniture',{});
 		equals( tracker.Type, 'Omniture', '$.TrackIt.Type is correct!' );
 		ok( jQuery.isFunction( tracker.DoTrackPageView ), '$.TrackIt.DoPageView is defined' );
 		ok( jQuery.isFunction( tracker.DoTrackEvent ), '$.TrackIt.DoTrackEvent is defined' ); 
@@ -12,13 +12,13 @@ var TrackItTests = {
 	 * Checks to make sure that the tracking module gets created and that Google Analytics is available.
 	 */
 	InitTrackItGoogleAnalytics: function() { 
-		var tracker = $.initTrackIt('omniture',{});
+		var tracker = new $.TrackIt('omniture',{});
 		equals( tracker.Type, 'Omniture', '$.TrackIt.Type is correct!' );
 		ok( jQuery.isFunction( tracker.DoTrackPageView ), '$.TrackIt.DoPageView is defined' );
 		ok( jQuery.isFunction( tracker.DoTrackEvent ), '$.TrackIt.DoTrackEvent is defined' ); 
 	},
 	GetPlaceHolderArray: function() {
-		var tracker = $.initTrackIt('omniture',{});
+		var tracker = new $.TrackIt('omniture',{});
 		var testHolder = 'some text [holderA] some more text [holderB] some other text [holderC]';
 		var holders = tracker.GetPlaceHolderArray( testHolder );
 		
@@ -28,12 +28,12 @@ var TrackItTests = {
 		equals( holders[2], '[holderC]', '[holderC] found successfully!' );
 	},
 	ReplaceHolders: function() {
-		var tracker = $.initTrackIt('omniture',{
-			GlobalHolders: { 
+		var tracker = new $.TrackIt('omniture',{
+			Holders: { 
 				'test_global_string': 'value of global holder string',
 				'test_global_function': function() { return 'value of global holder function'; 	}
 			},
-			TrackData: { 
+			Data: { 
 				'Fake Key': {
 					'key1': 'value1',
 					'key2': 'value2',
@@ -72,7 +72,7 @@ var TrackItTests = {
 		fakeElement.remove();
 	},
 	InitDudLink: function() {
-		var tracker = $.initTrackIt( 'omniture', {} );
+		var tracker = new $.TrackIt( 'omniture', {} );
 		
 		if( tracker.DudHtmlLink != null && tracker.DudHtmlLink.parents('body').length > 0 ) {
 			ok( true, 'dud link is valid' ); 
@@ -81,15 +81,15 @@ var TrackItTests = {
 		}
 	},
 	ParseXml: function() {
-		var tracker = $.initTrackIt('omniture',{});
+		var tracker = new $.TrackIt('omniture',{});
 		
 		var xml = '<?xml version="1.0" encoding="UTF-8"?>' + 
 			'<track>' + 
-				'<trackEvent eventName="Page Load" event="pageView" urlMap="*">' + 
+				'<trackEvent key="Page Load" type="pageView" urlMap="*">' + 
 					'<pageName>jquery.trackit.js QUnit Test Page</pageName>' + 
 					'<eVar1>this is eVar1</eVar1>' + 
 				'</trackEvent>' + 
-				'<trackEvent eventName="Test Event" event="click">' + 
+				'<trackEvent key="Test Event" type="click">' + 
 					'<eVar2>this is a test eVar</eVar2>' + 
 					'<events>event20</events>' + 
 				'</trackEvent>' + 
@@ -98,13 +98,13 @@ var TrackItTests = {
 		var xmlObj = tracker.parseXml( xml );
 
 		ok(xmlObj["Page Load"] !== undefined, "Page Load - track event is defined" );
-		equals(xmlObj["Page Load"].event, "pageView", "Page Load - pageView event" );
+		equals(xmlObj["Page Load"].type, "pageView", "Page Load - pageView event" );
 		equals(xmlObj["Page Load"].urlMap, "*", "Page Load - urlMap" );
 		equals(xmlObj["Page Load"].pageName, "jquery.trackit.js QUnit Test Page", "Page Load - pageName" );
 		equals(xmlObj["Page Load"].eVar1, "this is eVar1", "Page Load - eVar1" );
 		
 		ok(xmlObj["Test Event"] !== undefined, "Test Event - track event" );
-		equals(xmlObj["Test Event"].event, "click", "Test Event - click event" );
+		equals(xmlObj["Test Event"].type, "click", "Test Event - click event" );
 		equals(xmlObj["Test Event"].eVar2, "this is a test eVar", "Test Event - eVar2" );
 		equals(xmlObj["Test Event"].events, "event20", "Test Event - events" );
 
@@ -112,36 +112,36 @@ var TrackItTests = {
 	// this entire test has to run as a callback to the tracking data being ready
 	LoadXml: function() {
 		stop();
-		var tracker = $.initTrackIt('omniture',{
+		var tracker = new $.TrackIt('omniture',{
 			XmlUrl: 'trackData.xml',
 			Plugins: [ { Init: function() { this.ready( function() { 
 				start();
-				equals( typeof this.TrackData["Page Load"], "object", "TrackData defined" );
+				equals( typeof this.Data["Page Load"], "object", "TrackData defined" );
 				var ele = $("<a href='/someurl.html'>a fake link</a>").get(0);
 				
-				equals(typeof this.TrackData["Page Load"], "object", "Page Load - track event is defined" );
-				equals(this.TrackData["Page Load"].event, "pageView", "Page Load - pageView event" );
-				equals(this.TrackData["Page Load"].urlMap, "*",  "Page Load - urlMap" );
-				equals(this.TrackData["Page Load"].pageName, "[TITLE] > [TEXT] > [HREF]", "Page Load - pageName" );
-				equals(this.TrackData["Page Load"].eVar1, "this is eVar1", "Page Load - eVar1" );
+				equals(typeof this.Data["Page Load"], "object", "Page Load - track event is defined" );
+				equals(this.Data["Page Load"].type, "pageView", "Page Load - pageView event" );
+				equals(this.Data["Page Load"].urlMap, "*",  "Page Load - urlMap" );
+				equals(this.Data["Page Load"].pageName, "[TITLE] > [TEXT] > [HREF]", "Page Load - pageName" );
+				equals(this.Data["Page Load"].eVar1, "this is eVar1", "Page Load - eVar1" );
 				
-				equals(typeof this.TrackData["Test Event"], "object", "Test Event - track event" );
-				equals(this.TrackData["Test Event"].event, "click", "Test Event - click event" );
-				equals(this.TrackData["Test Event"].eVar2, "this is a test eVar [HREF]", "Test Event - eVar2" );
-				equals(this.TrackData["Test Event"].events, "event20", "Test Event - events" );	
+				equals(typeof this.Data["Test Event"], "object", "Test Event - track event" );
+				equals(this.Data["Test Event"].type, "click", "Test Event - click event" );
+				equals(this.Data["Test Event"].eVar2, "this is a test eVar [HREF]", "Test Event - eVar2" );
+				equals(this.Data["Test Event"].events, "event20", "Test Event - events" );	
 			} ) } } ]
 		});
 	},
 	
 	GetParsedData: function() {		
 		stop();
-		var tracker = $.initTrackIt('omniture',{
+		var tracker = new $.TrackIt('omniture',{
 			XmlUrl: 'trackData.xml',
 			Plugins: [ { Init: function() { this.ready( function() { 
 				start();
-				equals( typeof this.TrackData["Page Load"], "object", "TrackData defined" );
+				equals( typeof this.Data["Page Load"], "object", "TrackData defined" );
 				var ele = $("<a href='/someurl.html'>a fake link</a>").get(0);
-				var options = $.extend({},this.TrackData["Page Load"], { ele: ele });
+				var options = $.extend({},this.Data["Page Load"], { ele: ele });
 				
 				var data = this.GetParsedData("Page Load", options );
 				equals( data.pageName, "jquery.trackit.js - QUnit Tests > a fake link > /someurl.html", "Page Load - pageName" );
@@ -153,7 +153,7 @@ var TrackItTests = {
 	ReadyEvent: function() {
 		stop();
 		var readyCount = 0;
-		var tracker = $.initTrackIt('omniture',{
+		var tracker = new $.TrackIt('omniture',{
 			XmlUrl: 'trackData.xml',
 			Plugins: [ { Init: function() { this.ready( function() {
 				readyCount++;

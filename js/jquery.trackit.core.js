@@ -32,29 +32,13 @@ if(!window.console.group){window.console=$.extend(window.console,{group:Void,gro
 var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof o[p]==="object"){c[p]=cloneObj(o[p]);}else{c[p]=o[p];}}}return c;};
  
 /*************************************************************************
- * jquery.TrackIt.js - Version 2.0
+ * jquery.TrackIt.js - Version 2.1
  *************************************************************************
  * @author Aaron Lisman (Aaron.Lisman@ogilvy.com)
  * @author Adam S. Kirschner (AdamS.Kirschner@ogilvy.com)
- * $Rev: 160 $
- * $Date: 2010-01-19 14:37:50 -0500 (Tue, 19 Jan 2010) $
- * $Author: adams.kirschner@ogilvy.com $
- * $HeadURL: https://svn.ogilvy.com/repos/OgilvyInteractive/projects/TrackingPlugin/trunk/js/jquery.trackit.core.js $
  *************************************************************************
  */
 (function($) {	
-	/**
-	 * Create a new instance of the tracker, "this" should be the data grid itself
-	 * @constructor
-	 * @name initTrackIt
-	 * @see TrackItModules
-	 * @memberOf $
-	 * @param {string} trackerModule the Tracking Module to use
-	 * @param {object} options a set of options that can be used to override $.TrackIt.defaults
-	 * @snippet var tracker = $.initTrackIt('omniture', { XmlUrl: '/path/to/trackData.xml' });
-	 */
-	$.initTrackIt = function(trackerModule, options){ return new $.TrackIt(trackerModule, options); };
-		
 	/**
 	 * Main Constructor. Initializes the main Tracker object, merges in the correct tracking module and returns
 	 * an instance of the tracker itself. This function will also attach a click event using jQuery.live
@@ -100,7 +84,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 		this.ready(function() { self.RunTrackQueue(); });
 		
 		// extend global placeholders
-		if( options.GlobalHolders ) { $.extend( this.BuiltInHolders, options.GlobalHolders ); }
+		if( options.Holders ) { $.extend( this.Holders, options.Holders ); }
 		
 		// use live to set global click listener
 		$(this.settings.TrackKeyCssSelector).live('click', function(){ self.HandleGenericClick( this ); });
@@ -114,10 +98,10 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 		// if there was an xml file specified, load it	
 		if( options.XmlUrl ) {
 			// load the track data from an Xml File, send in an extra data that is set (if any)
-			this.loadXml(options.XmlUrl, options.TrackData);
+			this.loadXml(options.XmlUrl, options.Data);
 		} else {
 			// set the track data
-			this.TrackData = $.extend({}, options.TrackData);
+			this.Data = $.extend({}, options.Data);
 			
 			// callback functions should run when this module has done its basic initialization
 			this.ready();
@@ -275,11 +259,11 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 				case "googleanalytics":
 				case "google":
 				case "ga":
-					$.extend( this, window.TrackingModules.GoogleAnalytics );
+					$.extend( this, window.TrackItModules.GoogleAnalytics );
 					break;
 				case "omniture":
 				case "omni":
-					$.extend( this, window.TrackingModules.Omniture );
+					$.extend( this, window.TrackItModules.Omniture );
 					break;
 				default:
 					console.error("WARNING: No valid tracking module was specified!"); 
@@ -297,7 +281,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 		 * @param {string} xmlUrl the URL of where the trackData XML file lives. 
 		 * @param {object} extraTrackData an object that will be merged into the XML file once it is loaded, useful for custom functions as holders 
 		 */
-		loadXml: function( xmlUrl, extraTrackData ) {
+		loadXml: function( xmlUrl, extraData ) {
 			var self = this;
 			
 			// lets go, ajax time
@@ -307,7 +291,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 					// if no data comes back, do nothing
 					if( xml.responseText.length > 0 ) {
 						// set processed data 
-						self.TrackData = $.extend( self.parseXml(xml.responseText), extraTrackData );
+						self.Data = $.extend( self.parseXml(xml.responseText), extraData );
 					}
 										
 					// since we're ready now, go, this should change to a custom event
@@ -335,7 +319,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 					var trackEvent = $(this);
 					var newTrackEvent = {
 						urlMap: trackEvent.attr('urlMap'),
-						event: trackEvent.attr('event')
+						type: trackEvent.attr('type')
 					};
 					
 					$(this.childNodes).each(function(){
@@ -344,7 +328,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 						}
 					});
 						
-					trackEvents[ trackEvent.attr('eventName') ] = newTrackEvent;
+					trackEvents[ trackEvent.attr('key') ] = newTrackEvent;
 				}
 			});
 			
@@ -469,14 +453,14 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 				}
 				
 				// check that params has a key, and check to see if that key has an eventType to throw and is a function
-				if( params && params.key && this.TrackData[params.key] && 
-					this.TrackData[params.key][eventType] && $.isFunction( this.TrackData[params.key][eventType] ) 
+				if( params && params.key && this.Data[params.key] && 
+					this.Data[params.key][eventType] && $.isFunction( this.Data[params.key][eventType] ) 
 					) {
 					// it much be called from track data
 					if( this.settings.ShowDebugInfo ) { console.info( "$.TrackIt.fireEvent() - Firing Local Event '" + eventType + "'" ); }
 					
 					// if false is explicitly sent back, return false
-					if( this.TrackData[params.key][eventType].apply( self, [ params ] ) === false ) {
+					if( this.Data[params.key][eventType].apply( self, [ params ] ) === false ) {
 						retVal = false;
 					}
 				}
@@ -512,7 +496,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			if( this.settings.ShowDebugInfo ) { console.groupCollapsed( "$.TrackIt.track() - key='", key, "' options=", options); }
 			
 			// if the key is a valid track key
-			if( this.TrackData[key] !== undefined ) {	
+			if( this.Data[key] !== undefined ) {	
 			
 				// get the parsed version of the data (if there are placeholders) 
 				var parsedData = this.GetParsedData(key, options);
@@ -550,7 +534,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 		},
 		
 		/**
-		 * This will return parsed data from the TrackData object. Key and eventType are used to retrieve the 
+		 * This will return parsed data from the Data object. Key and eventType are used to retrieve the 
 		 * raw data. ele is passed in so that we can retrieve data from the element itself and use it in the reporting.
 		 * 
 		 * @private
@@ -562,10 +546,10 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 		GetParsedData: function( key, options ) {
 			var retVal = null;
 			
-			// find out if the key exists in TrackData
-			if (this.TrackData[key]) {
+			// find out if the key exists in Data
+			if (this.Data[key]) {
 				// retrieve it and replace all the holders in each data element
-				retVal = cloneObj( this.TrackData[key] );
+				retVal = cloneObj( this.Data[key] );
 			
 				for (var varName in retVal) {
 					if (! $.isFunction( retVal[varName] ) ) {
@@ -593,11 +577,11 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 		 * @type object
 		 * @memberOf $.TrackIt.prototype
 		 */
-		BuiltInHolders: {
+		Holders: {
 			/**
 			 * "ele.text()" of a HtmlElement
 			 * @property
-			 * @name $.TrackIt.prototype.BuiltInHolders.TEXT
+			 * @name $.TrackIt.prototype.Holders.TEXT
 			 * @memberOf $.TrackIt.prototype
 			 */
 			'TEXT': function() { return $(this).text(); },
@@ -605,7 +589,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			/**
 			 * title tag of the page
 			 * @field
-			 * @name $.TrackIt.prototype.BuiltInHolders.TITLE
+			 * @name $.TrackIt.prototype.Holders.TITLE
 			 * @memberOf $.TrackIt.prototype
 			 */
 			'TITLE': function() { return document.title; },
@@ -613,7 +597,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			/**
 			 * the "ele.text()" of the first HtmlHeadingElement
 			 * @field
-			 * @name $.TrackIt.prototype.BuiltInHolders.H1
+			 * @name $.TrackIt.prototype.Holders.H1
 			 * @memberOf $.TrackIt.prototype
 			 */
 			'H1': function() { return $("H1").text(); },
@@ -621,7 +605,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			/**
 			 * the "ele.alt" attribute of a HtmlElement
 			 * @field
-			 * @name $.TrackIt.prototype.BuiltInHolders.ALT
+			 * @name $.TrackIt.prototype.Holders.ALT
 			 * @memberOf $.TrackIt.prototype
 			 */
 			'ALT': function() { return $(this).attr('alt'); },
@@ -629,7 +613,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			/**
 			 * the destination url of a HtmlLinkElement
 			 * @field
-			 * @name $.TrackIt.prototype.BuiltInHolders.HREF
+			 * @name $.TrackIt.prototype.Holders.HREF
 			 * @memberOf $.TrackIt.prototype
 			 */
 			'HREF': function() { 
@@ -646,7 +630,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			/**
 			 * returns the value of what the HtmlAttribute "value" is for the current HtmlElement
 			 * @field
-			 * @name $.TrackIt.prototype.BuiltInHolders.ATTR
+			 * @name $.TrackIt.prototype.Holders.ATTR
 			 * @memberOf $.TrackIt.prototype
 			 */
 			'ATTR': function(o) { return $(this).attr(o.value); },
@@ -654,7 +638,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			/**
 			 * similar to ATTR however, will check parent elements and returns the first occurrance
 			 * @field
-			 * @name $.TrackIt.prototype.BuiltInHolders.ATTR+
+			 * @name $.TrackIt.prototype.Holders.ATTR+
 			 * @memberOf $.TrackIt.prototype
 			 */
 			'ATTR+': function(o) { 
@@ -667,7 +651,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			/**
 			 * the file name of the page
 			 * @field
-			 * @name $.TrackIt.prototype.BuiltInHolders.PAGENAME
+			 * @name $.TrackIt.prototype.Holders.PAGENAME
 			 * @memberOf $.TrackIt.prototype
 			 */
 		    'PAGENAME': function() { 
@@ -697,8 +681,8 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			var skipHolders = true;
 			
 			// throw beforeReplaceHolders event
-			if( this.TrackData[key]["beforeReplaceHolders"] && $.isFunction( this.TrackData[key]["beforeReplaceHolders"] ) ) {
-				skipHolders = this.TrackData[key]["beforeReplaceHolders"].apply( this, [{ key: key, str: str, options: options }] );
+			if( this.Data[key]["beforeReplaceHolders"] && $.isFunction( this.Data[key]["beforeReplaceHolders"] ) ) {
+				skipHolders = this.Data[key]["beforeReplaceHolders"].apply( this, [{ key: key, str: str, options: options }] );
 			}
 			
 			// get all Holders that exist in this string
@@ -719,10 +703,10 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 					var command = splitArr[0]; var value = splitArr[1];
 					
 					// process the existing track key properties first, recognizes functions and string values
-					if ( $.isFunction( this.TrackData[key][command] ) ) {
-						parsedHolder = this.TrackData[key][command].apply( options.ele || null, [{ instance:this, key:key, value:value }] ); 
-					} else if( typeof this.TrackData[key][command] === "string" ) {
-						parsedHolder = this.TrackData[key][command];
+					if ( $.isFunction( this.Data[key][command] ) ) {
+						parsedHolder = this.Data[key][command].apply( options.ele || null, [{ instance:this, key:key, value:value }] ); 
+					} else if( typeof this.Data[key][command] === "string" ) {
+						parsedHolder = this.Data[key][command];
 					}	
 					// rerun same rules on the passed options
 					else if( options && $.isFunction( options[ command ] ) ) {
@@ -731,11 +715,11 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 						parsedHolder = options[ command ];
 						
 					// built in holders
-					} else if( this.BuiltInHolders[command] && $.isFunction( this.BuiltInHolders[command] ) ) { 
-						parsedHolder = this.BuiltInHolders[command].apply( options.ele || null, [{ instance:this, key: key, value:value }] );
+					} else if( this.Holders[command] && $.isFunction( this.Holders[command] ) ) { 
+						parsedHolder = this.Holders[command].apply( options.ele || null, [{ instance:this, key: key, value:value }] );
 					
-					} else if( this.BuiltInHolders[command] && typeof this.BuiltInHolders[command] === "string" ) {
-						parsedHolder = this.BuiltInHolders[command];
+					} else if( this.Holders[command] && typeof this.Holders[command] === "string" ) {
+						parsedHolder = this.Holders[command];
 					} else {
 						if( this.settings.ShowMissingHolderWarnings && this.settings.ShowDebugInfo ) {
 							console.warn( "$.TrackIt.HandleBuiltInHolder() - Missing Holder Detected - '" + command + "' in key '" + key + "'" );
@@ -743,8 +727,8 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 					}
 					
 					// throw afterReplaceHolders event
-					if( this.TrackData[key]["afterReplaceHolders"] && $.isFunction( this.TrackData[key]["afterReplaceHolders"] ) ) {
-						retVal = this.TrackData[key]["afterReplaceHolders"].apply( this, [{ key: key, str: str, options: options }] );
+					if( this.Data[key]["afterReplaceHolders"] && $.isFunction( this.Data[key]["afterReplaceHolders"] ) ) {
+						retVal = this.Data[key]["afterReplaceHolders"].apply( this, [{ key: key, str: str, options: options }] );
 						if( retVal ) { str = retVal; }
 					}
 					
