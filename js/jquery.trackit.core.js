@@ -528,11 +528,10 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 		},
 		
 		RunTrackQueue: function() {
-		    var obj = this.__TRACK_QUEUE.pop();
-		    
-		    while (obj != undefined) {
-		        this.track(obj.key, obj.options);
+		    var obj = null;
+		    while (this.__TRACK_QUEUE.length > 0) {
 		        obj = this.__TRACK_QUEUE.pop();
+		        this.track(obj.key, obj.options);
 		    } 
 		},
 		
