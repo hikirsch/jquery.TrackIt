@@ -503,7 +503,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 	
 				if( this.fireEvent('beforeTrack', { key: key, options: options, parsedData: parsedData } ) ) {
 					// detect what kind of an event that occurred and use the loaded module to track the event
-					if (parsedData.event && parsedData.event.toLowerCase() == "pageview") {
+					if (parsedData.type && parsedData.type.toLowerCase() == "pageview") {
 						if( this.settings.ShowDebugInfo ) { console.info('$.TrackIt.track()-->DoTrackPageView("' + key + '")'); }
 						this.DoTrackPageView(parsedData, options)
 					} else {
@@ -528,9 +528,12 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 		},
 		
 		RunTrackQueue: function() {
-			for( var obj in this.__TRACK_QUEUE ) {
-				this.track( obj.key, obj.options );
-			}
+		    var obj = this.__TRACK_QUEUE.pop();
+		    
+		    while (obj != undefined) {
+		        this.track(obj.key, obj.options);
+		        obj = this.__TRACK_QUEUE.pop();
+		    } 
 		},
 		
 		/**
