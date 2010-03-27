@@ -138,7 +138,10 @@
 			 * @name Init
 			 * @memberOf CheckUrlMapping
 			 */
-			Init: function(){ this.ready( $.TrackItPlugins.CheckUrlMapping.Go ); },
+			Init: function(){ 
+				this.ExcludeAttribute('urlMap');
+				this.ready( $.TrackItPlugins.CheckUrlMapping.Go ); 
+			},
 			/**
 			 * Go function for the check url mapping. Implementation for this plugin is here.
 			 * 
@@ -194,7 +197,7 @@
 		 * tracked data set's eVar1. If eVar1 was NOT tracked, it will return null.
 		 * 
 		 * @name RecordLastTrack
-		 * @memberOf TrackItPlugins
+		 * @memberOf $.TrackItPlugins
 		 */
 		RecordLastTrack: {
 			/**
@@ -202,7 +205,7 @@
 			 * 
 			 * @function
 			 * @name RecordLastTrack.Init
-			 * @memberOf TrackItPlugins
+			 * @memberOf $.TrackItPlugins
 			 */
 			Init: function() { 
 				this.__LAST_REPORT = {};
@@ -220,7 +223,7 @@
 			 * 
 			 * @function
 			 * @name RecordLastTrack.LastHolder
-			 * @memberOf TrackItPlugins
+			 * @memberOf $.TrackItPlugins
 			 */
 			LastHolder: function(options) {
 				if( $.TrackItPlugins.RecordLastTrack.__LAST_REPORT && $.TrackItPlugins.RecordLastTrack.__LAST_REPORT[options.value] ) { 
@@ -228,6 +231,54 @@
 				} else {
 					if( options.instance.settings.ShowDebugInfo ) { console.warn( "TrackItPlugins.RecordLastTrack() - LAST value request not found '" + options.value + "'")}
 				}
+			}
+		},
+		
+		/**
+		 * This plugin will allow the developer to use a "cssSelector" attribute to bind trackKeys to.
+		 * This is an alternative plan of action instead of embedding trackKey attributes onto each link.
+		 */
+		CssSelector: {
+			/**
+			 * This function init's the css selector plugin.
+			 * 
+			 * @function
+			 * @name CssSelector.Init
+			 * @memberOf $.TrackItPlugins
+			 */
+			Init: function() {
+				this.ExcludeAttribute('cssSelector');
+				this.ready( $.TrackItPlugins.CssSelector.Go ); 
+			},
+			
+			/** 
+			 * This function processes the actual selector and calls instance.track()
+			 * 
+			 * @function
+			 * @name CssSelector.Go
+			 * @memberOf $.TrackItPlugins
+			 */
+			Go: function() {
+				var self = this;
+				if( self.settings.ShowDebugInfo ) { console.group( "$.TrackItPlugins.CssSelector() - Enabled'" ); }
+				
+				// go through each track key
+				for( var trackKey in self.Data ) {
+					
+					// get the selector and make sure its something
+					var selector = this.Data[trackKey].cssSelector;
+					if( selector && selector.length > 0 ) {
+				
+						// set our event
+						$(selector).live("click", function() { 
+							self.track(trackKey, { ele: this });
+						});
+						
+						if( self.settings.ShowDebugInfo ) { console.info( '"', trackKey, '" --> "', selector, '"' ); }
+					}
+				}
+
+				if( self.settings.ShowDebugInfo ) { console.groupEnd(); }
 			}
 		}
 	}

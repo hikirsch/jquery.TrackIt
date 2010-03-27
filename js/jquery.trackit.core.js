@@ -51,8 +51,6 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 	 */
 	$.TrackIt = function(trackerModule, options) {
 		var self = this;
-
-		
 		
 		// allow options to override default settings
 		this.settings = $.extend(this.defaults, options.Settings);
@@ -82,6 +80,9 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 		// create an empty track queue
 		this.__TRACK_QUEUE = [];
 		this.ready(function() { self.RunTrackQueue(); });
+		
+		this.ExcludeAttribute("key");
+		this.ExcludeAttribute("type");
 		
 		// extend global placeholders
 		if( options.Holders ) { $.extend( this.Holders, options.Holders ); }
@@ -116,6 +117,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 		{
 		__GLOBAL_EVENTS: [ 'afterProcessHolders', 'beforeProcessHolders', 'beforeTrack', 'afterTrack' ],
 		__INDIVIDUAL_EVENTS: [ 'afterProcessHolders', 'beforeProcessHolders', 'beforeTrack', 'afterTrack' ],
+		__EXCLUDE_VARS: [],
 		/**
 		 * These are the basic options that can be overridden by $.TrackIt to help debugging
 		 * and other customizations that may be necessary. Every option is set to false by default.
@@ -310,6 +312,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 		 */
 		parseXml: function( xml ) {
 			var trackEvents = {};
+			var self = this;
 			
 			// get all of the trackEvent nodes.
 			xml = this.getXmlObject(xml).getElementsByTagName("trackEvent");
@@ -317,9 +320,21 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			$(xml).each(function() {
 				if( this.tagName ) {
 					var trackEvent = $(this);
-					var newTrackEvent = {
-						urlMap: trackEvent.attr('urlMap'),
-						type: trackEvent.attr('type')
+					var newTrackEvent = {}
+					
+					// read in all the attributes (except key)
+					for( var i = 0; i < this.attributes.length; i++ ) {
+						var nodeName = this.attributes[i].nodeName;
+						
+						// key is captured manually as it is primary to a structure
+						if( nodeName.toLowerCase() != "key" ) { 
+							
+							// store this attribute
+							newTrackEvent[ nodeName ] = trackEvent.attr(nodeName);
+							
+							// remember these values so that when we do reporting, we can take them out.
+							if( self.__EXCLUDE_VARS.indexOf(nodeName) < 0 ) { self.__EXCLUDE_VARS.push(nodeName); }
+						}
 					};
 					
 					$(this.childNodes).each(function(){
@@ -334,6 +349,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			
 			return trackEvents;
 		},
+		
 		/**
 		 * Since we cannot use jQuery to parse the XML, we will need to create either an ActiveXObject for IE or use a 
 		 * standardized method to retrieve a valid XML DOM.
@@ -533,6 +549,10 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 		        obj = this.__TRACK_QUEUE.pop();
 		        this.track(obj.key, obj.options);
 		    } 
+		},
+		
+		ExcludeAttribute: function(attr) { 
+			this.__EXCLUDE_VARS.push(attr);
 		},
 		
 		/**

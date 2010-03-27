@@ -5,7 +5,7 @@
 		<eVar1>this is eVar1</eVar1>
 		<eVar2>[URL]</eVar2>
 	</trackEvent>
-	<trackEvent key="Test Event" type="click">
+	<trackEvent key="Test Event" type="click" cssSelector="a.testCssSelectorLink">
 		<eVar2>this is a test eVar [HREF]</eVar2>
 		<events>event20</events>
 	</trackEvent>

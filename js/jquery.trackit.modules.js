@@ -74,17 +74,16 @@
 
 				// merge all the data into "s"
 				$.extend( s, data );
-				
+								
 				// these are TrackIt specific attributes used, we don't want this to merge with the tracker at all.
-				var excludeVars = [ "type", "urlMap", "customLinkName" ];
-				$.each( excludeVars, function() { delete s[this] } );
+				$.each( this.__EXCLUDE_VARS, function() { delete s[this] } );
 				
 				// omniture needs to know all the variables we are settings asside
 				// from just setting it, add all the variable names to an array
 				
 				var linkTrackVars = [];
 				for( var varName in data ) { 
-					if( $(excludeVars).index(varName) == -1 ) { linkTrackVars.push( varName ); }
+					if( this.__EXCLUDE_VARS.indexOf(varName) == -1 ) { linkTrackVars.push( varName ); }
 				}
 				
 				// join the array with and tell omniture these are the variables
@@ -117,7 +116,7 @@
 					// either send in the HtmlLinkElement that was passed or the dud link
 					// customLinkName allows for a custom value 
 					s.tl( options.ele || dudLink, data.customLinkType || 'o', data.customLinkName || null);
-					
+
 					if( this.settings.ShowDebugInfo || this.settings.ShowOnlyReportedData ) { 
 						console.groupCollapsed("TrackItModules.Omniture.DoTrackEvent() - Event tracked successfully.");
 						console.dir({"s": s, "data": data });

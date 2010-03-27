@@ -89,7 +89,7 @@ var TrackItTests = {
 					'<pageName>jquery.trackit.js QUnit Test Page</pageName>' + 
 					'<eVar1>this is eVar1</eVar1>' + 
 				'</trackEvent>' + 
-				'<trackEvent key="Test Event" type="click">' + 
+				'<trackEvent key="Test Event" type="click" cssSelector="a.testCssSelectorLink">' + 
 					'<eVar2>this is a test eVar</eVar2>' + 
 					'<events>event20</events>' + 
 				'</trackEvent>' + 
@@ -107,7 +107,8 @@ var TrackItTests = {
 		equals(xmlObj["Test Event"].type, "click", "Test Event - click event" );
 		equals(xmlObj["Test Event"].eVar2, "this is a test eVar", "Test Event - eVar2" );
 		equals(xmlObj["Test Event"].events, "event20", "Test Event - events" );
-
+		equals(xmlObj["Test Event"].cssSelector, "a.testCssSelectorLink", "Test Event - CssSelector" );
+		
 	},
 	// this entire test has to run as a callback to the tracking data being ready
 	LoadXml: function() {
@@ -147,7 +148,7 @@ var TrackItTests = {
 				equals( data.pageName, "jquery.trackit.js - QUnit Tests > a fake link > /someurl.html", "Page Load - pageName" );
 				equals( data.eVar1, "this is eVar1", "Page Load - eVar1" );
 				equals( data.eVar2, "/qunit/runtests.html", "Page Load - eVar2" );
-			} ) } } ]
+			} ) } }, $.TrackItPlugins.CssSelector ]
 		});
 	},
 	ReadyEvent: function() {
