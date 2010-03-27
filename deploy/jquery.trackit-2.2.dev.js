@@ -32,7 +32,7 @@ if(!window.console.group){window.console=$.extend(window.console,{group:Void,gro
 var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof o[p]==="object"){c[p]=cloneObj(o[p]);}else{c[p]=o[p];}}}return c;};
  
 /*************************************************************************
- * jquery.TrackIt.js - Version 2.1
+ * jquery.TrackIt.js - Version 2.2
  *************************************************************************
  * @author Aaron Lisman (Aaron.Lisman@ogilvy.com)
  * @author Adam S. Kirschner (AdamS.Kirschner@ogilvy.com)
@@ -51,8 +51,6 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 	 */
 	$.TrackIt = function(trackerModule, options) {
 		var self = this;
-
-		
 		
 		// allow options to override default settings
 		this.settings = $.extend(this.defaults, options.Settings);
@@ -82,6 +80,9 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 		// create an empty track queue
 		this.__TRACK_QUEUE = [];
 		this.ready(function() { self.RunTrackQueue(); });
+		
+		this.ExcludeAttribute("key");
+		this.ExcludeAttribute("type");
 		
 		// extend global placeholders
 		if( options.Holders ) { $.extend( this.Holders, options.Holders ); }
@@ -116,6 +117,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 		{
 		__GLOBAL_EVENTS: [ 'afterProcessHolders', 'beforeProcessHolders', 'beforeTrack', 'afterTrack' ],
 		__INDIVIDUAL_EVENTS: [ 'afterProcessHolders', 'beforeProcessHolders', 'beforeTrack', 'afterTrack' ],
+		__EXCLUDE_VARS: [],
 		/**
 		 * These are the basic options that can be overridden by $.TrackIt to help debugging
 		 * and other customizations that may be necessary. Every option is set to false by default.
@@ -310,6 +312,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 		 */
 		parseXml: function( xml ) {
 			var trackEvents = {};
+			var self = this;
 			
 			// get all of the trackEvent nodes.
 			xml = this.getXmlObject(xml).getElementsByTagName("trackEvent");
@@ -317,9 +320,21 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			$(xml).each(function() {
 				if( this.tagName ) {
 					var trackEvent = $(this);
-					var newTrackEvent = {
-						urlMap: trackEvent.attr('urlMap'),
-						type: trackEvent.attr('type')
+					var newTrackEvent = {}
+					
+					// read in all the attributes (except key)
+					for( var i = 0; i < this.attributes.length; i++ ) {
+						var nodeName = this.attributes[i].nodeName;
+						
+						// key is captured manually as it is primary to a structure
+						if( nodeName.toLowerCase() != "key" ) { 
+							
+							// store this attribute
+							newTrackEvent[ nodeName ] = trackEvent.attr(nodeName);
+							
+							// remember these values so that when we do reporting, we can take them out.
+							if( self.__EXCLUDE_VARS.indexOf(nodeName) < 0 ) { self.__EXCLUDE_VARS.push(nodeName); }
+						}
 					};
 					
 					$(this.childNodes).each(function(){
@@ -334,6 +349,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			
 			return trackEvents;
 		},
+		
 		/**
 		 * Since we cannot use jQuery to parse the XML, we will need to create either an ActiveXObject for IE or use a 
 		 * standardized method to retrieve a valid XML DOM.
@@ -503,7 +519,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 	
 				if( this.fireEvent('beforeTrack', { key: key, options: options, parsedData: parsedData } ) ) {
 					// detect what kind of an event that occurred and use the loaded module to track the event
-					if (parsedData.event && parsedData.event.toLowerCase() == "pageview") {
+					if (parsedData.type && parsedData.type.toLowerCase() == "pageview") {
 						if( this.settings.ShowDebugInfo ) { console.info('$.TrackIt.track()-->DoTrackPageView("' + key + '")'); }
 						this.DoTrackPageView(parsedData, options)
 					} else {
@@ -528,9 +544,15 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 		},
 		
 		RunTrackQueue: function() {
-			for( var obj in this.__TRACK_QUEUE ) {
-				this.track( obj.key, obj.options );
-			}
+		    var obj = null;
+		    while (this.__TRACK_QUEUE.length > 0) {
+		        obj = this.__TRACK_QUEUE.pop();
+		        this.track(obj.key, obj.options);
+		    } 
+		},
+		
+		ExcludeAttribute: function(attr) { 
+			this.__EXCLUDE_VARS.push(attr);
 		},
 		
 		/**
@@ -743,7 +765,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 })(jQuery);
 
 /*************************************************************************
- * jquery.TrackIt.modules.js - Version 2.0
+ * jquery.TrackIt.modules.js - Version 2.2
  *************************************************************************
  * @author Aaron Lisman (Aaron.Lisman@ogilvy.com)
  * @author Adam S. Kirschner (AdamS.Kirschner@ogilvy.com)
@@ -818,17 +840,16 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 
 				// merge all the data into "s"
 				$.extend( s, data );
-				
+								
 				// these are TrackIt specific attributes used, we don't want this to merge with the tracker at all.
-				var excludeVars = [ "type", "urlMap", "customLinkName" ];
-				$.each( excludeVars, function() { delete s[this] } );
+				$.each( this.__EXCLUDE_VARS, function() { delete s[this] } );
 				
 				// omniture needs to know all the variables we are settings asside
 				// from just setting it, add all the variable names to an array
 				
 				var linkTrackVars = [];
 				for( var varName in data ) { 
-					if( $(excludeVars).index(varName) == -1 ) { linkTrackVars.push( varName ); }
+					if( this.__EXCLUDE_VARS.indexOf(varName) == -1 ) { linkTrackVars.push( varName ); }
 				}
 				
 				// join the array with and tell omniture these are the variables
@@ -861,7 +882,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 					// either send in the HtmlLinkElement that was passed or the dud link
 					// customLinkName allows for a custom value 
 					s.tl( options.ele || dudLink, data.customLinkType || 'o', data.customLinkName || null);
-					
+
 					if( this.settings.ShowDebugInfo || this.settings.ShowOnlyReportedData ) { 
 						console.groupCollapsed("TrackItModules.Omniture.DoTrackEvent() - Event tracked successfully.");
 						console.dir({"s": s, "data": data });
@@ -909,7 +930,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 })(jQuery);
 
 /*************************************************************************
- * jquery.TrackIt.plugins.js - Version 2.0
+ * jquery.TrackIt.plugins.js - Version 2.2
  *************************************************************************
  * @author Aaron Lisman (Aaron.Lisman@ogilvy.com)
  * @author Adam S. Kirschner (AdamS.Kirschner@ogilvy.com)
@@ -1048,7 +1069,10 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			 * @name Init
 			 * @memberOf CheckUrlMapping
 			 */
-			Init: function(){ this.ready( $.TrackItPlugins.CheckUrlMapping.Go ); },
+			Init: function(){ 
+				this.ExcludeAttribute('urlMap');
+				this.ready( $.TrackItPlugins.CheckUrlMapping.Go ); 
+			},
 			/**
 			 * Go function for the check url mapping. Implementation for this plugin is here.
 			 * 
@@ -1104,7 +1128,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 		 * tracked data set's eVar1. If eVar1 was NOT tracked, it will return null.
 		 * 
 		 * @name RecordLastTrack
-		 * @memberOf TrackItPlugins
+		 * @memberOf $.TrackItPlugins
 		 */
 		RecordLastTrack: {
 			/**
@@ -1112,7 +1136,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			 * 
 			 * @function
 			 * @name RecordLastTrack.Init
-			 * @memberOf TrackItPlugins
+			 * @memberOf $.TrackItPlugins
 			 */
 			Init: function() { 
 				this.__LAST_REPORT = {};
@@ -1130,7 +1154,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			 * 
 			 * @function
 			 * @name RecordLastTrack.LastHolder
-			 * @memberOf TrackItPlugins
+			 * @memberOf $.TrackItPlugins
 			 */
 			LastHolder: function(options) {
 				if( $.TrackItPlugins.RecordLastTrack.__LAST_REPORT && $.TrackItPlugins.RecordLastTrack.__LAST_REPORT[options.value] ) { 
@@ -1138,6 +1162,54 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 				} else {
 					if( options.instance.settings.ShowDebugInfo ) { console.warn( "TrackItPlugins.RecordLastTrack() - LAST value request not found '" + options.value + "'")}
 				}
+			}
+		},
+		
+		/**
+		 * This plugin will allow the developer to use a "cssSelector" attribute to bind trackKeys to.
+		 * This is an alternative plan of action instead of embedding trackKey attributes onto each link.
+		 */
+		CssSelector: {
+			/**
+			 * This function init's the css selector plugin.
+			 * 
+			 * @function
+			 * @name CssSelector.Init
+			 * @memberOf $.TrackItPlugins
+			 */
+			Init: function() {
+				this.ExcludeAttribute('cssSelector');
+				this.ready( $.TrackItPlugins.CssSelector.Go ); 
+			},
+			
+			/** 
+			 * This function processes the actual selector and calls instance.track()
+			 * 
+			 * @function
+			 * @name CssSelector.Go
+			 * @memberOf $.TrackItPlugins
+			 */
+			Go: function() {
+				var self = this;
+				if( self.settings.ShowDebugInfo ) { console.group( "$.TrackItPlugins.CssSelector() - Enabled'" ); }
+				
+				// go through each track key
+				for( var trackKey in self.Data ) {
+					
+					// get the selector and make sure its something
+					var selector = this.Data[trackKey].cssSelector;
+					if( selector && selector.length > 0 ) {
+				
+						// set our event
+						$(selector).live("click", function() { 
+							self.track(trackKey, { ele: this });
+						});
+						
+						if( self.settings.ShowDebugInfo ) { console.info( '"', trackKey, '" --> "', selector, '"' ); }
+					}
+				}
+
+				if( self.settings.ShowDebugInfo ) { console.groupEnd(); }
 			}
 		}
 	}

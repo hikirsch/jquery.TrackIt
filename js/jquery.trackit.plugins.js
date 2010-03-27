@@ -1,5 +1,5 @@
 /*************************************************************************
- * jquery.TrackIt.plugins.js - Version 2.0
+ * jquery.TrackIt.plugins.js - Version 2.2
  *************************************************************************
  * @author Aaron Lisman (Aaron.Lisman@ogilvy.com)
  * @author Adam S. Kirschner (AdamS.Kirschner@ogilvy.com)
