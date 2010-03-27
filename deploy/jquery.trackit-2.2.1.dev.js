@@ -32,7 +32,7 @@ if(!window.console.group){window.console=$.extend(window.console,{group:Void,gro
 var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof o[p]==="object"){c[p]=cloneObj(o[p]);}else{c[p]=o[p];}}}return c;};
  
 /*************************************************************************
- * jquery.TrackIt.js - Version 2.2
+ * jquery.TrackIt.js - Version 2.2.1
  *************************************************************************
  * @author Aaron Lisman (Aaron.Lisman@ogilvy.com)
  * @author Adam S. Kirschner (AdamS.Kirschner@ogilvy.com)
@@ -132,7 +132,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			 * @memberOf $.TrackIt.prototype
 			 * @type string
 			 */
-			TrackKeyCssSelector: "*",
+			TrackKeyCssSelector: "*[trackKey]",
 			
 			/**
 			 * whether or not reporting is actually sent to service. 
@@ -765,7 +765,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 })(jQuery);
 
 /*************************************************************************
- * jquery.TrackIt.modules.js - Version 2.2
+ * jquery.TrackIt.modules.js - Version 2.2.1
  *************************************************************************
  * @author Aaron Lisman (Aaron.Lisman@ogilvy.com)
  * @author Adam S. Kirschner (AdamS.Kirschner@ogilvy.com)
@@ -930,7 +930,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 })(jQuery);
 
 /*************************************************************************
- * jquery.TrackIt.plugins.js - Version 2.2
+ * jquery.TrackIt.plugins.js - Version 2.2.1
  *************************************************************************
  * @author Aaron Lisman (Aaron.Lisman@ogilvy.com)
  * @author Adam S. Kirschner (AdamS.Kirschner@ogilvy.com)
