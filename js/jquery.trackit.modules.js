@@ -83,7 +83,7 @@
 				
 				var linkTrackVars = [];
 				for( var varName in data ) { 
-					if( this.__EXCLUDE_VARS.indexOf(varName) == -1 ) { linkTrackVars.push( varName ); }
+					if( $(this.__EXCLUDE_VARS).index(varName) == -1 ) { linkTrackVars.push( varName ); }
 				}
 				
 				// join the array with and tell omniture these are the variables

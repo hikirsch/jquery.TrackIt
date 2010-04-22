@@ -333,7 +333,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 							newTrackEvent[ nodeName ] = trackEvent.attr(nodeName);
 							
 							// remember these values so that when we do reporting, we can take them out.
-							if( self.__EXCLUDE_VARS.indexOf(nodeName) < 0 ) { self.__EXCLUDE_VARS.push(nodeName); }
+							if( $(self.__EXCLUDE_VARS).index(nodeName) < 0 ) { self.__EXCLUDE_VARS.push(nodeName); }
 						}
 					};
 					
@@ -849,7 +849,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 				
 				var linkTrackVars = [];
 				for( var varName in data ) { 
-					if( this.__EXCLUDE_VARS.indexOf(varName) == -1 ) { linkTrackVars.push( varName ); }
+					if( $(this.__EXCLUDE_VARS).index(varName) == -1 ) { linkTrackVars.push( varName ); }
 				}
 				
 				// join the array with and tell omniture these are the variables
