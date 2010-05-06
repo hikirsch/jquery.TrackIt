@@ -5,9 +5,7 @@
  * @function
  * @memberOf window
  */
-var Void=function(){};if(!window.console){window.console={warn:Void,log:Void,error:Void,info:Void}};
-
-if(!window.console.group){window.console=$.extend(window.console,{group:Void,groupEnd:Void,groupCollapsed:Void,dir:Void});}
+var Void=function(){};$.each(["groupCollapsed","groupEnd","group","warn","info","dir","warn","error","log"], function(i,s) { if (!( s in console ) ) { console.log("adding: " + s); window.console[s] = Void; } });
 /**
  * See a basic JavaScript guide if you don't know what the window is.
  * @name window
@@ -32,7 +30,7 @@ if(!window.console.group){window.console=$.extend(window.console,{group:Void,gro
 var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof o[p]==="object"){c[p]=cloneObj(o[p]);}else{c[p]=o[p];}}}return c;};
  
 /*************************************************************************
- * jquery.TrackIt.js - Version 2.2.2
+ * jquery.TrackIt.js
  *************************************************************************
  * @author Aaron Lisman (Aaron.Lisman@ogilvy.com)
  * @author Adam S. Kirschner (AdamS.Kirschner@ogilvy.com)
@@ -765,7 +763,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 })(jQuery);
 
 /*************************************************************************
- * jquery.TrackIt.modules.js - Version 2.2.2
+ * jquery.TrackIt.modules.js
  *************************************************************************
  * @author Aaron Lisman (Aaron.Lisman@ogilvy.com)
  * @author Adam S. Kirschner (AdamS.Kirschner@ogilvy.com)
@@ -868,10 +866,10 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 					console.groupEnd();
 				} else {
 					// use a dud link and set the link url and link text if they exist
-					if( options['link url'] && options['link text'] ) { 
+					if (data['dudLinkUrl'] && data['dudLinkText'] ) { 
 						this.DudHtmlLink
-							.attr('href', options['link url'] )
-							.text( options['link text'] );
+							.attr('href', data['customLinkUrl'] )
+							.text( data['dudLinkText'] );
 					}
 					
 					var dudLink = null;
@@ -930,7 +928,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 })(jQuery);
 
 /*************************************************************************
- * jquery.TrackIt.plugins.js - Version 2.2.2
+ * jquery.TrackIt.plugins.js
  *************************************************************************
  * @author Aaron Lisman (Aaron.Lisman@ogilvy.com)
  * @author Adam S. Kirschner (AdamS.Kirschner@ogilvy.com)
