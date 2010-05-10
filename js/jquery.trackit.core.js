@@ -5,9 +5,7 @@
  * @function
  * @memberOf window
  */
-var Void=function(){};if(!window.console){window.console={warn:Void,log:Void,error:Void,info:Void}};
-
-if(!window.console.group){window.console=$.extend(window.console,{group:Void,groupEnd:Void,groupCollapsed:Void,dir:Void});}
+var Void=function(){};$.each(["groupCollapsed","groupEnd","group","warn","info","dir","warn","error","log"], function(i,s) { if (!( s in console ) ) { console.log("adding: " + s); window.console[s] = Void; } });
 /**
  * See a basic JavaScript guide if you don't know what the window is.
  * @name window
@@ -32,7 +30,7 @@ if(!window.console.group){window.console=$.extend(window.console,{group:Void,gro
 var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof o[p]==="object"){c[p]=cloneObj(o[p]);}else{c[p]=o[p];}}}return c;};
  
 /*************************************************************************
- * jquery.TrackIt.js - Version 2.2.1
+ * jquery.TrackIt.js
  *************************************************************************
  * @author Aaron Lisman (Aaron.Lisman@ogilvy.com)
  * @author Adam S. Kirschner (AdamS.Kirschner@ogilvy.com)

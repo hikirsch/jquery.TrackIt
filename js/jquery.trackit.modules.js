@@ -1,5 +1,5 @@
 /*************************************************************************
- * jquery.TrackIt.modules.js - Version 2.2.1
+ * jquery.TrackIt.modules.js
  *************************************************************************
  * @author Aaron Lisman (Aaron.Lisman@ogilvy.com)
  * @author Adam S. Kirschner (AdamS.Kirschner@ogilvy.com)
@@ -102,10 +102,10 @@
 					console.groupEnd();
 				} else {
 					// use a dud link and set the link url and link text if they exist
-					if( options['link url'] && options['link text'] ) { 
+					if (data['dudLinkUrl'] && data['dudLinkText'] ) { 
 						this.DudHtmlLink
-							.attr('href', options['link url'] )
-							.text( options['link text'] );
+							.attr('href', data['customLinkUrl'] )
+							.text( data['dudLinkText'] );
 					}
 					
 					var dudLink = null;
