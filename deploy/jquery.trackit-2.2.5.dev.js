@@ -5,7 +5,7 @@
  * @function
  * @memberOf window
  */
-var Void=function(){};$.each(["groupCollapsed","groupEnd","group","warn","info","dir","warn","error","log"], function(i,s) { if (!( s in console ) ) { console.log("adding: " + s); window.console[s] = Void; } });
+var Void=function(){};$.each(["groupCollapsed","groupEnd","group","warn","info","dir","warn","error","log"], function(i,s) { if (!( s in console ) ) { window.console[s] = Void; } });
 /**
  * See a basic JavaScript guide if you don't know what the window is.
  * @name window
@@ -754,6 +754,9 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 					
 					// replace the parsed value of the holder with the holder itself
 					str = str.replace(holder, parsedHolder); 
+					
+					// if this string has more holders in it from another holder, we have to recurse through it
+					str = this.ReplaceHolders( str, key, options );
 				}
 			}
 			
