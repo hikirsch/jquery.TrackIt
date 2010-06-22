@@ -37,6 +37,7 @@ var TrackItTests = {
 				'Fake Key': {
 					'key1': 'value1',
 					'key2': 'value2',
+					'key3': '[key2]',
 					'fake_key_holder_function': function() { return 'Fake Key dynamic holder'; }
 				}
 			}
@@ -60,6 +61,7 @@ var TrackItTests = {
 			{ input: '[test_global_string]', expected: 'value of global holder string' },
 			{ input: '[test_global_function]', expected: 'value of global holder function' },
 			{ input: '[key1]', expected: 'value1' },
+			{ input: '[key3]', expected: 'value2' },
 			{ input: '[fake_key_holder_function]', expected: 'Fake Key dynamic holder' }
 		];
 		
@@ -90,8 +92,9 @@ var TrackItTests = {
 					'<eVar1>this is eVar1</eVar1>' + 
 				'</trackEvent>' + 
 				'<trackEvent key="Test Event" type="click" cssSelector="a.testCssSelectorLink">' + 
-					'<eVar2>this is a test eVar</eVar2>' + 
+					'<eVar2>this is a test eVar2</eVar2>' + 
 					'<events>event20</events>' + 
+					'<prop2>[eVar2]</prop2>' +
 				'</trackEvent>' + 
 			'</track>';
 		
@@ -105,8 +108,9 @@ var TrackItTests = {
 		
 		ok(xmlObj["Test Event"] !== undefined, "Test Event - track event" );
 		equals(xmlObj["Test Event"].type, "click", "Test Event - click event" );
-		equals(xmlObj["Test Event"].eVar2, "this is a test eVar", "Test Event - eVar2" );
+		equals(xmlObj["Test Event"].eVar2, "this is a test eVar2", "Test Event - eVar2" );
 		equals(xmlObj["Test Event"].events, "event20", "Test Event - events" );
+		equals(xmlObj["Test Event"].prop2, "[eVar2]", "Test Event - prop2" );
 		equals(xmlObj["Test Event"].cssSelector, "a.testCssSelectorLink", "Test Event - CssSelector" );
 		
 	},

@@ -1,6 +1,6 @@
 @ECHO OFF
 
-set version=2.2.3
+set version=2.2.5
 
 del ..\deploy\*.js 
 

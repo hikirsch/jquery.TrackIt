@@ -5,7 +5,7 @@
  * @function
  * @memberOf window
  */
-var Void=function(){};$.each(["groupCollapsed","groupEnd","group","warn","info","dir","warn","error","log"], function(i,s) { if (!( s in console ) ) { window.console[s] = Void; } });
+var Void=function(){};$.each(["groupCollapsed","groupEnd","group","warn","info","dir","warn","error","log"], function(i,s) { if (!( s in console ) ) { console.log("adding: " + s); window.console[s] = Void; } });
 /**
  * See a basic JavaScript guide if you don't know what the window is.
  * @name window
@@ -754,14 +754,462 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 					
 					// replace the parsed value of the holder with the holder itself
 					str = str.replace(holder, parsedHolder); 
-					
-					// if this string has more holders in it from another holder, we have to recurse through it
-					str = this.ReplaceHolders( str, key, options );
 				}
 			}
 			
 			return str;
 		}
 	});	
+})(jQuery);
+
+/*************************************************************************
+ * jquery.TrackIt.modules.js
+ *************************************************************************
+ * @author Aaron Lisman (Aaron.Lisman@ogilvy.com)
+ * @author Adam S. Kirschner (AdamS.Kirschner@ogilvy.com)
+ *************************************************************************
+ */
+(function($){
+	/**
+	 * A tracking module needs to declare at least 2 kinds of tracking methods, "TrackEvent" and "TrackPageView". The outer 
+	 * shell of $.TrackIt is essentially a wrapper for both of these functions. Each function will receive the data node
+	 * of the correct event that was passed. The TrackEvent function will also receive the element that the event fired from.
+	 * 
+	 * @class
+	 * @name TrackItModules
+	 */
+	window.TrackItModules = {
+		/**
+		 * These are the Google Analytics methods needed for TrackIt to track.
+		 * @class
+		 * @name GoogleAnalytics
+		 * @memberOf TrackItModules
+		 */
+		GoogleAnalytics: {
+			/**
+			 * @field
+			 * @name Type
+			 * @type string
+			 * @memberOf TrackItModules.GoogleAnalytics
+			 */
+			Type: "Google Analytics",
+			
+			/**
+			 * This is the Google Analaytics implementation of the TrackEvent. This handles all special cases in terms 
+			 * of being able to track the proper variables.
+			 * 
+			 * @param {Object} data the parsed data that should be reported.
+			 * @param {HtmlElement} ele the HtmlElement that the event fired from
+			 */
+			DoTrackEvent: function(data, ele){				
+				if( this.settings.ShowDebugInfo ) {
+					console.info(data);
+				} else {
+					pageTracker._trackEvent(data.category, data.action, data.opt_label, data.opt_value);
+				}
+			},
+			DoTrackPageView: function(data){
+				if (this.settings.ShowDebugInfo) {
+					console.info(data);
+				} else {
+					pageTracker._trackPageview(data.pageName);
+				}
+			}
+		},
+		
+		/**
+		 * These are the Omniture methods needed for TrackIt to track.
+		 * @class
+		 * @name Omniture
+		 * @memberOf TrackItModules
+		 */
+		Omniture: {
+			Type: "Omniture",
+			/**
+			 * This is the omniture implementation of the TrackEvent. This handles all special cases in terms of being able
+			 * to track the proper variables.
+			 * 
+			 * @param {Object} data the parsed data that should be reported.
+			 * @param {HtmlElement} ele the HtmlElement that the event fired from
+			 */
+			DoTrackEvent: function(data, options){
+				// create new omniture instance
+				var s = s_gi(s_account);
+
+				// merge all the data into "s"
+				$.extend( s, data );
+								
+				// these are TrackIt specific attributes used, we don't want this to merge with the tracker at all.
+				$.each( this.__EXCLUDE_VARS, function() { delete s[this] } );
+				
+				// omniture needs to know all the variables we are settings asside
+				// from just setting it, add all the variable names to an array
+				
+				var linkTrackVars = [];
+				for( var varName in data ) { 
+					if( $(this.__EXCLUDE_VARS).index(varName) == -1 ) { linkTrackVars.push( varName ); }
+				}
+				
+				// join the array with and tell omniture these are the variables
+				s.linkTrackVars = linkTrackVars.join(',');
+				
+				// not only do we need set the s.events variable, but also s.linkTrackEvents
+				// if an event does get thrown
+				if( s.events && s.events.length > 0 ) {
+					s.linkTrackEvents = s.events;
+				}
+
+				// if in test mode just show what would get reported
+				if( this.settings.TestMode && ( this.settings.ShowOnlyReportedData || this.settings.ShowDebugInfo ) ) {
+					console.groupCollapsed( "TrackItModules.Omniture.DoTrackEvent() - Track Event Skipped:" );
+					console.dir( {"s": s, "data": data} );
+					console.groupEnd();
+				} else {
+					// use a dud link and set the link url and link text if they exist
+					if (data['dudLinkUrl'] && data['dudLinkText'] ) { 
+						this.DudHtmlLink
+							.attr('href', data['customLinkUrl'] )
+							.text( data['dudLinkText'] );
+					}
+					
+					var dudLink = null;
+					if( this.DudHtmlLink && this.DudHtmlLink.length > 0 ) {
+						dudLink = this.DudHtmlLink.get(0);
+					}
+					
+					// either send in the HtmlLinkElement that was passed or the dud link
+					// customLinkName allows for a custom value 
+					s.tl( options.ele || dudLink, data.customLinkType || 'o', data.customLinkName || null);
+
+					if( this.settings.ShowDebugInfo || this.settings.ShowOnlyReportedData ) { 
+						console.groupCollapsed("TrackItModules.Omniture.DoTrackEvent() - Event tracked successfully.");
+						console.dir({"s": s, "data": data });
+						console.groupEnd();
+					}
+					
+					// clear the dud link
+					this.DudHtmlLink
+							.attr('href', '#nojs' )
+							.text( '' );
+							
+					// clean up, clear out all the values that were set
+					for( var key in data ) { delete s[key]  };
+				}
+			},
+			DoTrackPageView: function( data ) {
+			
+				// use existing s object from current page
+				$.extend( s, data );
+				
+				// if in test mode AND we're showing some sort of information, we show the data
+				if( this.settings.TestMode && ( this.settings.ShowOnlyReportedData || this.settings.ShowDebugInfo ) ) {
+					console.groupCollapsed("TrackItModules.Omniture.DoTrackPageView() - Page View tracking is being skipped.")
+					console.dir({"s": s, "data": data});
+					console.groupEnd();
+				} 
+				
+				// if not in test mode, then actually track it
+				if( ! this.settings.TestMode ) {	
+					s.t();
+					
+					// decipher whether or not the tracked information should show
+					if( this.settings.ShowDebugInfo || this.settings.ShowOnlyReportedData ) { 
+						console.groupCollapsed("TrackItModules.Omniture.DoTrackPageView() - Page View tracked successfully.");
+						console.dir({"s": s, "data": data });
+						console.groupEnd();
+					}
+				}
+				
+				// clean up, clear out all the values that were set
+				for( var key in data ) { delete s[key]  };
+			}
+		}
+	}
+})(jQuery);
+
+/*************************************************************************
+ * jquery.TrackIt.plugins.js
+ *************************************************************************
+ * @author Aaron Lisman (Aaron.Lisman@ogilvy.com)
+ * @author Adam S. Kirschner (AdamS.Kirschner@ogilvy.com)
+ *************************************************************************
+ */
+(function($){
+	/**
+	 * A collection of Plugins available to use with TrackIt.
+	 * @name TrackItPlugins
+	 **/
+	$.TrackItPlugins = {
+		/**
+		 * The data sanity checker will iterate through each track key and process all the holders within 
+		 * each variable. It will detect whether or not a valid holder replacement was found or not. An
+		 * extra option "SanityCheckMissingOnly" can be used to only report on those holders that are missing.
+		 * This will show up in the console regardless of the other options that are set.
+		 * 
+		 * @name DataSanityCheck
+		 * @memberOf TrackItPlugins
+		 */	
+		DataSanityCheck: { 
+			/**
+			 * Init function for the Data Sanity Check
+			 * @function
+			 * name Init
+			 * memberOf DataSanityCheck
+			 */
+			Init: function() { this.ready( $.TrackItPlugins.DataSanityCheck.Go ); },
+			/**
+			 * Go function for the Data Sanity Check. Implementation for this plugin is here.
+			 * 
+			 * @function
+			 * name Go
+			 * memberOf DataSanityCheck
+			 */
+			Go: function(flashValidHolders, flashInvalidHolders) { 
+				holderStatus = {};
+				if( ! flashValidHolders ) { flashValidHolders = {} ; }
+				if( ! flashInvalidHolders ) { flashInvalidHolders = {} ; }
+				for( var key in this.Data ) {
+					if( ! this.settings.SanityCheckMissingOnly ) { holderStatus[key] = {}; }
+					keyData = cloneObj( this.Data[key] );
+					for( var varName in keyData ) {
+						var str = keyData[varName];
+						if (typeof str == 'string') {
+							var holders = this.GetPlaceHolderArray(str);
+							if( holders ) {
+								for( var i = 0; i < holders.length; i++ ) {
+									var holder = holders[i];
+									var splitArr = holder.toString().substring(1,(holder.length-1)).toString().split(":");
+									var command = splitArr[0]; var value = splitArr[1];
+									if( ! ( this.Holders[command] ) &&
+										! ( keyData[command] ) &&
+										! ( flashValidHolders[command] ) ) {
+										if( ! holderStatus[key] ) { holderStatus[key] = {}; }
+										holderStatus[key][command] = false;
+									} else {
+										if( ! this.settings.SanityCheckMissingOnly ) { 
+											holderStatus[key][command] = true; 
+										} else if( holderStatus[key] && holderStatus[key][command] ) {
+											delete holderStatus[key][command]; 
+										}
+									}
+								}
+							}
+							
+						}
+					}
+				}
+				if( this.settings.ShowDebugInfo ) { 
+					console.groupCollapsed( "TrackItPlugins.DataSanityCheck() - Results" );
+					console.dir( holderStatus );
+					console.groupEnd();
+				}
+			}
+		},
+		/**
+		 * This plugin will copy all prop's from each track key and copy its value into a corresponding eVar.
+		 * 
+		 * @name CopyPropToEVar
+		 * @memberOf TrackItPlugins
+		 */
+		CopyPropToEVar: {
+			/**
+			 * Init function for the Copy prop to eVar plugin.
+			 * 
+			 * @function
+			 * @name Init
+			 * @memberOf TrackItPlugins.CopyPropToEVar
+			 */
+			Init: function() { this.ready( TrackItPlugins.CopyPropToEVar.Go ); },
+			/**
+			 * Go function for the Copy prop to eVar. Implementation for this plugin is here.
+			 * 
+			 * @function
+			 * @name Go
+			 * @memberOf TrackItPlugins.CopyPropToEVar
+			 */
+			Go: function() { 
+				if( this.settings.ShowDebugInfo ) { console.groupCollapsed( "TrackItPlugins.CopyPropToEVar.Go() - Results" ); }
+							
+				var regex = new RegExp("(\\d+)","g");
+				var newEVars = {};
+				for( var key in this.Data ) {
+					keyData = this.Data[key];
+					for( var varName in keyData ) {
+						if( varName.indexOf( "prop" ) > -1 ) {
+							var i = varName.match(regex)[0];
+							keyData["eVar" + i] = keyData["prop" + i];
+							if( ! newEVars[ key ] ) { newEVars[key] = {}; }
+							newEVars[key]["eVar" + i] = keyData[varName];
+						}
+					}
+				}
+				
+				if( this.settings.ShowDebugInfo ) { 
+					console.dir(newEVars);
+					console.groupEnd(); 
+				}
+			}
+		},
+		/**
+		 * Once the tracker has been loaded, it begins by checking the URL and the XML to see if any
+		 * pageview event should fire. This function has a recognized options "EnableUrlMappingWithDeepLink"
+		 * in the event that you want the deep linking controler to control what should be reported. This is 
+		 * useful when using deep linking with JavaScript or Flash.
+		 * 
+		 * @name CheckUrlMapping
+		 * @memberOf TrackItPlugins
+		 */
+		CheckUrlMapping: {
+			/**
+			 * The init function for checking the url mapping.
+			 * 
+			 * @function
+			 * @name Init
+			 * @memberOf CheckUrlMapping
+			 */
+			Init: function(){ 
+				this.ExcludeAttribute('urlMap');
+				this.ready( $.TrackItPlugins.CheckUrlMapping.Go ); 
+			},
+			/**
+			 * Go function for the check url mapping. Implementation for this plugin is here.
+			 * 
+			 * @function
+			 * @name Go
+			 * @memberOf CheckUrlMapping
+			 */
+			Go: function(){
+				var that = this;
+					
+				// if the option "EnableUrlMappingWithDeepLink" is set and there's a match URL map, then skip UrlMapping for this load
+				if( document.location.hash.length > 0 && ! this.settings.EnableUrlMappingWithDeepLink ) {
+					if( this.settings.ShowDebugInfo ) { console.info("TrackItPlugins.CheckUrlMapping.Go() - Deep Link Detected, Disabling Url Mapping"); }
+				} else {	
+					// the feature is enabled, so show info that it's going to process
+					if( this.settings.ShowDebugInfo ) { console.group("TrackItPlugins.CheckUrlMapping.Go() - Enabled"); }
+					if( this.settings.ShowDebugInfo ) { console.info("TrackItPlugins.CheckUrlMapping.Go() - Check against URL: ", document.location.pathname); }
+					var found = false;
+					// go through each track key
+					for( var trackKey in this.Data ) {
+						var trackObj = this.Data[trackKey];
+
+						// ensure that a url mapping exists
+						if( trackObj.urlMap ) {
+							var urlMappings = trackObj.urlMap.split("|");
+
+							$.each( urlMappings, function() {
+								// check the URL and the url mapping as a regex, do some regex non-friendly manipulation first
+								var mapping = this.replace("[", "\\["); 
+								mapping = mapping.replace("]","\\]");
+								mapping = mapping.replace("*",".*");
+								
+								if( !found && ( new RegExp( "^" + mapping + "$", "i" )).test( unescape(document.location.pathname) ) ) {
+									// if the test pasts as a regex match, then track this event
+									if( that.settings.ShowDebugInfo ) { console.info("TrackItPlugins.CheckUrlMapping.Go() - Found Key: '" + trackKey + "'"); }
+									that.track( trackKey, {});
+									found = true;
+								}
+							});
+						}
+					}
+					
+					if( this.settings.ShowDebugInfo && ! found ) { console.info("TrackItPlugins.CheckUrlMapping.Go() - Key Not Found!"); } 
+				}
+				
+				if( this.settings.ShowDebugInfo ) { console.groupEnd(); }
+			}
+		},
+		
+		/**
+		 * This plugin will store the last tracked results and can be referenced by using the [LAST:****] holder
+		 * where the asterisks is the track variable. For example [LAST:eVar1] will get replaced with the last
+		 * tracked data set's eVar1. If eVar1 was NOT tracked, it will return null.
+		 * 
+		 * @name RecordLastTrack
+		 * @memberOf $.TrackItPlugins
+		 */
+		RecordLastTrack: {
+			/**
+			 * This function init's the record last track plugin. It sets the LAST holder as well as the event.
+			 * 
+			 * @function
+			 * @name RecordLastTrack.Init
+			 * @memberOf $.TrackItPlugins
+			 */
+			Init: function() { 
+				this.__LAST_REPORT = {};
+				
+				this.addCallback('afterTrack', function(options) { 
+					$.TrackItPlugins.RecordLastTrack.__LAST_REPORT = $.extend( $.TrackItPlugins.RecordLastTrack.__LAST_REPORT, options.parsedData);
+					if( this.settings.ShowDebugInfo ) { console.info("TrackItPlugins.RecordLastTrack() - Last data set saved!"); }
+				});
+			
+				this.Holders["LAST"] = $.TrackItPlugins.RecordLastTrack.LastHolder;
+			},
+			/**
+			 * This function is executed on the 'afterTrack' call back event. When it is called, it will store the tracking results from
+			 * the track that just occurred.
+			 * 
+			 * @function
+			 * @name RecordLastTrack.LastHolder
+			 * @memberOf $.TrackItPlugins
+			 */
+			LastHolder: function(options) {
+				if( $.TrackItPlugins.RecordLastTrack.__LAST_REPORT && $.TrackItPlugins.RecordLastTrack.__LAST_REPORT[options.value] ) { 
+					return $.TrackItPlugins.RecordLastTrack.__LAST_REPORT[options.value];
+				} else {
+					if( options.instance.settings.ShowDebugInfo ) { console.warn( "TrackItPlugins.RecordLastTrack() - LAST value request not found '" + options.value + "'")}
+				}
+			}
+		},
+		
+		/**
+		 * This plugin will allow the developer to use a "cssSelector" attribute to bind trackKeys to.
+		 * This is an alternative plan of action instead of embedding trackKey attributes onto each link.
+		 */
+		CssSelector: {
+			/**
+			 * This function init's the css selector plugin.
+			 * 
+			 * @function
+			 * @name CssSelector.Init
+			 * @memberOf $.TrackItPlugins
+			 */
+			Init: function() {
+				this.ExcludeAttribute('cssSelector');
+				this.ready( $.TrackItPlugins.CssSelector.Go ); 
+			},
+			
+			/** 
+			 * This function processes the actual selector and calls instance.track()
+			 * 
+			 * @function
+			 * @name CssSelector.Go
+			 * @memberOf $.TrackItPlugins
+			 */
+			Go: function() {
+				var self = this;
+				if( self.settings.ShowDebugInfo ) { console.group( "$.TrackItPlugins.CssSelector() - Enabled'" ); }
+				
+				// go through each track key
+				for( var trackKey in self.Data ) {
+					
+					// get the selector and make sure its something
+					var selector = this.Data[trackKey].cssSelector;
+					if( selector && selector.length > 0 ) {
+				
+						// set our event
+						$(selector).live("click", function() { 
+							self.track(trackKey, { ele: this });
+						});
+						
+						if( self.settings.ShowDebugInfo ) { console.info( '"', trackKey, '" --> "', selector, '"' ); }
+					}
+				}
+
+				if( self.settings.ShowDebugInfo ) { console.groupEnd(); }
+			}
+		}
+	}
 })(jQuery);
 
