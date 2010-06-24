@@ -5,7 +5,7 @@
  * @function
  * @memberOf window
  */
-var Void=function(){};$.each(["groupCollapsed","groupEnd","group","warn","info","dir","warn","error","log"], function(i,s) { if (!( s in console ) ) { window.console[s] = Void; } });
+var Void=function(){};if(!("console" in window)){window.console={};};$.each(["groupCollapsed","groupEnd","group","warn","info","dir","warn","error","log"], function(i,s) { if (!( s in console ) ) { window.console[s] = Void; } });
 /**
  * See a basic JavaScript guide if you don't know what the window is.
  * @name window
