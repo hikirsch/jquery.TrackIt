@@ -35,12 +35,12 @@ var TrackItTests = {
 			},
 			Data: { 
 				'Fake Key': {
-					'key1': 'value1',
+					'eVar1': 'THIS IS A TEST',
 					'key2': 'value2',
 					'key3': '[key2]',
 					'fake_key_holder_function': function() { return 'Fake Key dynamic holder'; }
 				}
-			}
+			}			
 		});
 		
 		var fakeElement = $('<div style="display:none;"><div customAttr="a custom attribute test"><div id="customTestId">This <a href="/somepage.html">is a</a> test DIV<img src="/fake/path.jpg" alt="fake alt text" /></div></div></div>');
@@ -60,7 +60,7 @@ var TrackItTests = {
 			{ input: '[CUSTOM_HOLDER]', expected: 'some value', extra: { 'CUSTOM_HOLDER': 'some value' } },
 			{ input: '[test_global_string]', expected: 'value of global holder string' },
 			{ input: '[test_global_function]', expected: 'value of global holder function' },
-			{ input: '[key1]', expected: 'value1' },
+			{ input: '[eVar1]', expected: 'THIS IS A TEST' },
 			{ input: '[key3]', expected: 'value2' },
 			{ input: '[fake_key_holder_function]', expected: 'Fake Key dynamic holder' }
 		];
@@ -70,6 +70,8 @@ var TrackItTests = {
 			var processed = tracker.ReplaceHolders( this.input, 'Fake Key', $.extend({ ele: ele }, this.extra));
 			equals( processed, this.expected, this.input );
 		});
+		
+		// tracker.track("Fake Key");
 		
 		fakeElement.remove();
 	},

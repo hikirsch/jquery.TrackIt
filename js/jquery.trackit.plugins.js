@@ -233,7 +233,7 @@
 				}
 			}
 		},
-		
+
 		/**
 		 * This plugin will allow the developer to use a "cssSelector" attribute to bind trackKeys to.
 		 * This is an alternative plan of action instead of embedding trackKey attributes onto each link.
@@ -275,6 +275,46 @@
 						});
 						
 						if( self.settings.ShowDebugInfo ) { console.info( '"', trackKey, '" --> "', selector, '"' ); }
+					}
+				}
+
+				if( self.settings.ShowDebugInfo ) { console.groupEnd(); }
+			}
+		},
+		
+
+		/**
+		 * This plugin will allow the developer to use a "cssSelector" attribute to bind trackKeys to.
+		 * This is an alternative plan of action instead of embedding trackKey attributes onto each link.
+		 */
+		ToLowerCase: {
+			/**
+			 * 
+			 * 
+			 * @function
+			 * @name ToLowerCase.Init
+			 * @memberOf $.TrackItPlugins
+			 */
+			Init: function() {
+				this.addCallback( 'beforeTrack', $.TrackItPlugins.ToLowerCase.Go );
+				if( this.settings.ShowDebugInfo ) { console.info( "$.TrackItPlugins.ToLowerCase() - Enabled'" ); }
+			},
+			
+			/** 
+			 *  
+			 * @function
+			 * @name ToLowerCase.Go
+			 * @memberOf $.TrackItPlugins
+			 */
+			Go: function( options ) {
+				var self = this;
+				if( self.settings.ShowDebugInfo ) { console.group( "$.TrackItPlugins.ToLowerCase() - Executing'" ); }
+				
+				var parsedData = options.parsedData;
+				// go through each track key
+				for( var key in parsedData ) {
+					if( $.isFunction( parsedData[key].toLowerCase ) ) {
+						parsedData[ key ] = parsedData[key].toLowerCase();
 					}
 				}
 

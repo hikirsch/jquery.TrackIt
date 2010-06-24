@@ -67,10 +67,6 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 		
 		// merge the tracking Module object settings into this object
 		this.loadTrackingModule(trackerModule);
-
-		// reset all track events
-		this.__CALLBACK_EVENTS = {};
-		$.each( this.__GLOBAL_EVENTS, function() { self.__CALLBACK_EVENTS[this + ''] = []; } );
 		
 		// set ready to start accepting new events
 		this.__READY = [];
@@ -88,10 +84,14 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 		// use live to set global click listener
 		$(this.settings.TrackKeyCssSelector).live('click', function(){ self.HandleGenericClick( this ); });
 	
+		// reset all track events
+		this.__CALLBACK_EVENTS = {};
+		$.each( this.__GLOBAL_EVENTS, function() { self.__CALLBACK_EVENTS[this + ''] = []; } );
+		
 		if( options.Plugins ) { $.each( options.Plugins, function() { 
 			if( this["Init"] && $.isFunction( this["Init"] ) ) { this.Init.apply(self); } 
 		});	}
-
+		
 		if( this.settings.ShowDebugInfo ) { console.groupEnd(); }
 		
 		// if there was an xml file specified, load it	
