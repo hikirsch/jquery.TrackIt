@@ -5,7 +5,7 @@
  * @function
  * @memberOf window
  */
-var Void=function(){};if(!("console" in window)){window.console={};};$.each(["groupCollapsed","groupEnd","group","warn","info","dir","warn","error","log"], function(i,s) { if (!( s in console ) ) { window.console[s] = Void; } });
+;;; var Void=function(){};if(!("console" in window)){window.console={};};$.each(["groupCollapsed","groupEnd","group","warn","info","dir","warn","error","log"], function(i,s) { if (!( s in console ) ) { window.console[s] = Void; } });
 /**
  * See a basic JavaScript guide if you don't know what the window is.
  * @name window
@@ -32,8 +32,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 /*************************************************************************
  * jquery.TrackIt.js
  *************************************************************************
- * @author Aaron Lisman (Aaron.Lisman@ogilvy.com)
- * @author Adam S. Kirschner (AdamS.Kirschner@ogilvy.com)
+ * @author Adam S. Kirschner (me@adamskirschner.com)
  *************************************************************************
  */
 (function($) {	
@@ -43,7 +42,6 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 	 * @constructor
 	 * @memberOf $
 	 * @name TrackIt
-	 * @param {object} data the tracking data itself
 	 * @param {string} trackerModule the Tracking Module to use, either ga or omniture (other aliases exist)
 	 * @param {object} options a set of options that can be used to override $.TrackIt.defaults
 	 */
@@ -53,14 +51,14 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 		// allow options to override default settings
 		this.settings = $.extend(this.defaults, options.Settings);
 		
-		if( this.settings.ShowDebugInfo ) { console.group( "$.TrackIt() - Init" ); }
+		;;; if( this.settings.ShowDebugInfo ) { console.group( "$.TrackIt() - Init" ); }
 		
 		// some debug info 
-		if( this.settings.TestMode && this.settings.ShowDebugInfo ) {
-			console.groupCollapsed( "$.TrackIt() - Test Mode is Enabled, Tracking Disabled!" );
-		} else if( this.settings.ShowDebugInfo ) {
-			console.info( "$.TrackIt() - Tracking Enabled. Debug Mode On." );
-		}
+		;;; if( this.settings.TestMode && this.settings.ShowDebugInfo ) {
+		;;; 	console.groupCollapsed( "$.TrackIt() - Test Mode is Enabled, Tracking Disabled!" );
+		;;; } else if( this.settings.ShowDebugInfo ) {
+		;;; 	console.info( "$.TrackIt() - Tracking Enabled. Debug Mode On." );
+		;;; }
 		
 		// Omniture does suck with flash, needs a "fake link"
 		this.InitDudLink();
@@ -73,7 +71,6 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 		
 		// create an empty track queue
 		this.__TRACK_QUEUE = [];
-		this.ready(function() { self.RunTrackQueue(); });
 		
 		this.ExcludeAttribute("key");
 		this.ExcludeAttribute("type");
@@ -84,15 +81,17 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 		// use live to set global click listener
 		$(this.settings.TrackKeyCssSelector).live('click', function(){ self.HandleGenericClick( this ); });
 	
+		// TODO: use jquery native custom events
 		// reset all track events
 		this.__CALLBACK_EVENTS = {};
 		$.each( this.__GLOBAL_EVENTS, function() { self.__CALLBACK_EVENTS[this + ''] = []; } );
 		
+		// go through the plugins and begin their init process
 		if( options.Plugins ) { $.each( options.Plugins, function() { 
 			if( this["Init"] && $.isFunction( this["Init"] ) ) { this.Init.apply(self); } 
 		});	}
 		
-		if( this.settings.ShowDebugInfo ) { console.groupEnd(); }
+		;;; if( this.settings.ShowDebugInfo ) { console.groupEnd(); }
 		
 		// if there was an xml file specified, load it	
 		if( options.XmlUrl ) {
@@ -266,7 +265,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 					$.extend( this, window.TrackItModules.Omniture );
 					break;
 				default:
-					console.error("WARNING: No valid tracking module was specified!"); 
+					;;; console.error("WARNING: No valid tracking module was specified!"); 
 			}
 		},
 		
@@ -401,7 +400,6 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 					
 				// if this function is called with no arguments, then the ready event fired
 				} else if( arguments.length === 0 ) {
-					
 					// set ready to true
 					this.isReady = true;
 					
@@ -412,6 +410,9 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 					
 					// remove the callbacks
 					delete this.__READY;
+					
+					// now that we're really ready, lets run all the events that may have already been fired.
+					this.RunTrackQueue();
 				}
 			}
 		},
@@ -426,14 +427,14 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 		 * @param {function} callback a callback method to be called when the event type has been triggered
 		 */
 		addCallback: function( eventType, callback ) {
-			if( this.settings.ShowDebugInfo ) { console.info( "$.TrackIt.addCallback() - Adding Callback to '" + eventType + "'", callback ); }
+			;;; if( this.settings.ShowDebugInfo ) { console.info( "$.TrackIt.addCallback() - Adding Callback to '" + eventType + "'", callback ); }
 
 			if( $.inArray(eventType, this.__GLOBAL_EVENTS > -1 ) ) { 
 				this.__CALLBACK_EVENTS[ eventType ].push( callback );
 			} else {
-				if( this.settings.ShowDebugInfo ) { 
-					console.warn( "$.TrackIt.addCallback() - Failed to add callback to '" + eventType + "'! ", callback );
-				}
+				;;; if( this.settings.ShowDebugInfo ) { 
+				;;; 	console.warn( "$.TrackIt.addCallback() - Failed to add callback to '" + eventType + "'! ", callback );
+				;;; }
 			}
 		},
 		
@@ -454,7 +455,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			
 			if( typeof eventType === "string" ) {
 				if( this.__CALLBACK_EVENTS[eventType] && this.__CALLBACK_EVENTS[eventType].length > 0 ) {
-					if( this.settings.ShowDebugInfo ) { console.group( "$.TrackIt.fireEvent() - Firing Global Event '" + eventType + "'" ); }
+					;;; if( this.settings.ShowDebugInfo ) { console.group( "$.TrackIt.fireEvent() - Firing Global Event '" + eventType + "'" ); }
 
 					$.each( this.__CALLBACK_EVENTS[eventType], function(){ 
 						// if false is explicitly sent back, return false
@@ -463,7 +464,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 						} 
 					});
 
-					if( this.settings.ShowDebugInfo ) { console.groupEnd(); }
+					;;; if( this.settings.ShowDebugInfo ) { console.groupEnd(); }
 				}
 				
 				// check that params has a key, and check to see if that key has an eventType to throw and is a function
@@ -471,7 +472,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 					this.Data[params.key][eventType] && $.isFunction( this.Data[params.key][eventType] ) 
 					) {
 					// it much be called from track data
-					if( this.settings.ShowDebugInfo ) { console.info( "$.TrackIt.fireEvent() - Firing Local Event '" + eventType + "'" ); }
+					;;; if( this.settings.ShowDebugInfo ) { console.info( "$.TrackIt.fireEvent() - Firing Local Event '" + eventType + "'" ); }
 					
 					// if false is explicitly sent back, return false
 					if( this.Data[params.key][eventType].apply( self, [ params ] ) === false ) {
@@ -507,7 +508,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			}
 		
 			// log that a track event has occured, show options and key that was caught
-			if( this.settings.ShowDebugInfo ) { console.groupCollapsed( "$.TrackIt.track() - key='", key, "' options=", options); }
+			;;; if( this.settings.ShowDebugInfo ) { console.groupCollapsed( "$.TrackIt.track() - key='", key, "' options=", options); }
 			
 			// if the key is a valid track key
 			if( this.Data[key] !== undefined ) {	
@@ -518,22 +519,30 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 				if( this.fireEvent('beforeTrack', { key: key, options: options, parsedData: parsedData } ) ) {
 					// detect what kind of an event that occurred and use the loaded module to track the event
 					if (parsedData.type && parsedData.type.toLowerCase() == "pageview") {
-						if( this.settings.ShowDebugInfo ) { console.info('$.TrackIt.track()-->DoTrackPageView("' + key + '")'); }
+						;;; if( this.settings.ShowDebugInfo ) { console.info('$.TrackIt.track()-->DoTrackPageView("' + key + '")'); }
 						this.DoTrackPageView(parsedData, options)
 					} else {
-						if( this.settings.ShowDebugInfo ) { console.info('$.TrackIt.track()-->DoTrackEvent("' + key + '")'); }
+						;;; if( this.settings.ShowDebugInfo ) { console.info('$.TrackIt.track()-->DoTrackEvent("' + key + '")'); }
 						this.DoTrackEvent(parsedData, options);				
 					}
 					
 					this.fireEvent('afterTrack', { key: key, options: options, parsedData: parsedData } );
 				} else {
-					if( this.settings.ShowDebugInfo ) { console.info("$.TrackIt.track() - beforeTrack returned false. Skipping track."); }
+					;;; if( this.settings.ShowDebugInfo ) { console.info("$.TrackIt.track() - beforeTrack returned false. Skipping track."); }
 				}
 			}
 			
-			if( this.settings.ShowDebugInfo ) { console.groupEnd(); }
+			;;; if( this.settings.ShowDebugInfo ) { console.groupEnd(); }
 		},
 		
+		/**
+		 * Since TrackIt can make an AJAX request and not have all the necessary components, it becomes necessary 
+		 * to queue up the events and fire them when the plugin has actually finished its init process.
+		 * @function
+		 * @memberOf $.TrackIt.prototype
+		 * @param {string} key the name of the event
+		 * @param {object} options the trackit options object
+		 */
 		QueueTrackEvent: function( key, options ) {
 			this.__TRACK_QUEUE.push({
 				key: key,
@@ -541,6 +550,11 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			});
 		},
 		
+		/**
+		 * This function will get called after ready() has finished. 
+		 * @function
+		 * @memberOf $.TrackIt.prototype
+		 */
 		RunTrackQueue: function() {
 		    var obj = null;
 		    while (this.__TRACK_QUEUE.length > 0) {
@@ -549,6 +563,13 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 		    } 
 		},
 		
+		/**
+		 * There are certain data key/values that we need to ditch before we process the data,
+		 * for example the track key and type. 
+		 * @function
+		 * @memberOf $.TrackIt.prototype
+		 * @param {string} attr the key to exclude from the data object
+		 */
 		ExcludeAttribute: function(attr) { 
 			this.__EXCLUDE_VARS.push(attr);
 		},
@@ -741,9 +762,9 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 					} else if( this.Holders[command] && typeof this.Holders[command] === "string" ) {
 						parsedHolder = this.Holders[command];
 					} else {
-						if( this.settings.ShowMissingHolderWarnings && this.settings.ShowDebugInfo ) {
-							console.warn( "$.TrackIt.HandleBuiltInHolder() - Missing Holder Detected - '" + command + "' in key '" + key + "'" );
-						}
+						;;; if( this.settings.ShowMissingHolderWarnings && this.settings.ShowDebugInfo ) {
+						;;; 	console.warn( "$.TrackIt.HandleBuiltInHolder() - Missing Holder Detected - '" + command + "' in key '" + key + "'" );
+						;;; }
 					}
 					
 					// throw afterReplaceHolders event
@@ -768,8 +789,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 /*************************************************************************
  * jquery.TrackIt.modules.js
  *************************************************************************
- * @author Aaron Lisman (Aaron.Lisman@ogilvy.com)
- * @author Adam S. Kirschner (AdamS.Kirschner@ogilvy.com)
+ * @author Adam S. Kirschner (me@adamskirschner.com)
  *************************************************************************
  */
 (function($){
@@ -804,19 +824,35 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			 * @param {Object} data the parsed data that should be reported.
 			 * @param {HtmlElement} ele the HtmlElement that the event fired from
 			 */
-			DoTrackEvent: function(data, ele){				
-				if( this.settings.ShowDebugInfo ) {
-					console.info(data);
-				} else {
-					pageTracker._trackEvent(data.category, data.action, data.opt_label, data.opt_value);
-				}
+			DoTrackEvent: function(data, ele){
+				;;; if( this.settings.TestMode && ( this.settings.ShowOnlyReportedData || this.settings.ShowDebugInfo ) ) {
+				;;; 	console.groupCollapsed( "TrackItModules.GoogleAnalytics.DoTrackEvent() - Track Event Skipped:" );
+				;;; 	console.dir({ "data": data });
+				;;; 	console.groupEnd();
+				;;; } else {
+						pageTracker._trackEvent(data.category, data.action, data.opt_label, data.opt_value);
+					
+				;;; 	if( this.settings.ShowDebugInfo || this.settings.ShowOnlyReportedData ) { 
+				;;; 		console.groupCollapsed("TrackItModules.GoogleAnalytics.DoTrackEvent() - Event tracked successfully.");
+				;;; 		console.dir({ "data": data });
+				;;;		 	console.groupEnd();
+				;;; 	}
+				;;; }
 			},
 			DoTrackPageView: function(data){
-				if (this.settings.ShowDebugInfo) {
-					console.info(data);
-				} else {
-					pageTracker._trackPageview(data.pageName);
-				}
+				;;; if( this.settings.TestMode && ( this.settings.ShowOnlyReportedData || this.settings.ShowDebugInfo ) ) {
+				;;; 	console.groupCollapsed( "TrackItModules.GoogleAnalytics.DoTrackPageView() - Track Event Skipped:" );
+				;;; 	console.dir({ "data": data });
+				;;; 	console.groupEnd();
+				;;; } else {
+						pageTracker._trackPageview(data.pageName);
+					
+				;;; 	if( this.settings.ShowDebugInfo || this.settings.ShowOnlyReportedData ) { 
+				;;; 		console.groupCollapsed("TrackItModules.GoogleAnalytics.DoTrackPageView() - Event tracked successfully.");
+				;;; 		console.dir({ "data": data });
+				;;;		 	console.groupEnd();
+				;;; 	}
+				;;; }
 			}
 		},
 		
@@ -841,7 +877,8 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 
 				// merge all the data into "s"
 				$.extend( s, data );
-								
+				
+				// TODO: create method in core to exclude data set
 				// these are TrackIt specific attributes used, we don't want this to merge with the tracker at all.
 				$.each( this.__EXCLUDE_VARS, function() { delete s[this] } );
 				
@@ -863,65 +900,64 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 				}
 
 				// if in test mode just show what would get reported
-				if( this.settings.TestMode && ( this.settings.ShowOnlyReportedData || this.settings.ShowDebugInfo ) ) {
-					console.groupCollapsed( "TrackItModules.Omniture.DoTrackEvent() - Track Event Skipped:" );
-					console.dir( {"s": s, "data": data} );
-					console.groupEnd();
-				} else {
-					// use a dud link and set the link url and link text if they exist
-					if (data['dudLinkUrl'] && data['dudLinkText'] ) { 
-						this.DudHtmlLink
-							.attr('href', data['customLinkUrl'] )
-							.text( data['dudLinkText'] );
-					}
-					
-					var dudLink = null;
-					if( this.DudHtmlLink && this.DudHtmlLink.length > 0 ) {
-						dudLink = this.DudHtmlLink.get(0);
-					}
-					
-					// either send in the HtmlLinkElement that was passed or the dud link
-					// customLinkName allows for a custom value 
-					s.tl( options.ele || dudLink, data.customLinkType || 'o', data.customLinkName || null);
+			;;; if( this.settings.TestMode && ( this.settings.ShowOnlyReportedData || this.settings.ShowDebugInfo ) ) {
+			;;; 	console.groupCollapsed( "TrackItModules.Omniture.DoTrackEvent() - Track Event Skipped:" );
+			;;; 	console.dir( {"s": s, "data": data} );
+			;;; 	console.groupEnd();
+			;;; } else {
+			 		// use a dud link and set the link url and link text if they exist
+			 		if (data['dudLinkUrl'] && data['dudLinkText'] ) { 
+			 			this.DudHtmlLink
+			 				.attr('href', data['customLinkUrl'] )
+			 				.text( data['dudLinkText'] );
+			 		}
 
-					if( this.settings.ShowDebugInfo || this.settings.ShowOnlyReportedData ) { 
-						console.groupCollapsed("TrackItModules.Omniture.DoTrackEvent() - Event tracked successfully.");
-						console.dir({"s": s, "data": data });
-						console.groupEnd();
-					}
-					
-					// clear the dud link
+			 		// either send in the HtmlLinkElement that was passed or the dud link
+			 		// customLinkName allows for a custom value 
+			 		s.tl( options.ele || this.DudHtmlLink.get(0), data.customLinkType || 'o', data.customLinkName || null );
+            
+			;;; 	if( this.settings.ShowDebugInfo || this.settings.ShowOnlyReportedData ) { 
+			;;; 		console.groupCollapsed("TrackItModules.Omniture.DoTrackEvent() - Event tracked successfully.");
+			;;; 		console.dir({"s": s, "data": data });
+			;;; 		console.groupEnd();
+			;;; 	}
+			
+			 		// clear the dud link
 					this.DudHtmlLink
 							.attr('href', '#nojs' )
 							.text( '' );
-							
+			
 					// clean up, clear out all the values that were set
-					for( var key in data ) { delete s[key]  };
-				}
+			 		for( var key in data ) { delete s[key]  };
+			;;; }
 			},
 			DoTrackPageView: function( data ) {
 			
 				// use existing s object from current page
 				$.extend( s, data );
 				
+				// TODO: create method in core to exclude data set
+				// these are TrackIt specific attributes used, we don't want this to merge with the tracker at all.
+				$.each( this.__EXCLUDE_VARS, function() { delete s[this] } );
+				
 				// if in test mode AND we're showing some sort of information, we show the data
-				if( this.settings.TestMode && ( this.settings.ShowOnlyReportedData || this.settings.ShowDebugInfo ) ) {
-					console.groupCollapsed("TrackItModules.Omniture.DoTrackPageView() - Page View tracking is being skipped.")
-					console.dir({"s": s, "data": data});
-					console.groupEnd();
-				} 
+			;;;	if( this.settings.TestMode && ( this.settings.ShowOnlyReportedData || this.settings.ShowDebugInfo ) ) {
+			;;;		console.groupCollapsed("TrackItModules.Omniture.DoTrackPageView() - Page View tracking is being skipped.")
+			;;;		console.dir({"s": s, "data": data});
+			;;;		console.groupEnd();
+			;;;	} 
 				
 				// if not in test mode, then actually track it
-				if( ! this.settings.TestMode ) {	
+			;;;	if( ! this.settings.TestMode ) {	
 					s.t();
 					
 					// decipher whether or not the tracked information should show
-					if( this.settings.ShowDebugInfo || this.settings.ShowOnlyReportedData ) { 
-						console.groupCollapsed("TrackItModules.Omniture.DoTrackPageView() - Page View tracked successfully.");
-						console.dir({"s": s, "data": data });
-						console.groupEnd();
-					}
-				}
+			;;;		if( this.settings.ShowDebugInfo || this.settings.ShowOnlyReportedData ) { 
+			;;;			console.groupCollapsed("TrackItModules.Omniture.DoTrackPageView() - Page View tracked successfully.");
+			;;;			console.dir({"s": s, "data": data });
+			;;;			console.groupEnd();
+			;;;		}
+			;;;	}
 				
 				// clean up, clear out all the values that were set
 				for( var key in data ) { delete s[key]  };
@@ -933,8 +969,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 /*************************************************************************
  * jquery.TrackIt.plugins.js
  *************************************************************************
- * @author Aaron Lisman (Aaron.Lisman@ogilvy.com)
- * @author Adam S. Kirschner (AdamS.Kirschner@ogilvy.com)
+ * @author Adam S. Kirschner (me@adamskirschner.com)
  *************************************************************************
  */
 (function($){
@@ -1001,13 +1036,14 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 						}
 					}
 				}
-				if( this.settings.ShowDebugInfo ) { 
-					console.groupCollapsed( "TrackItPlugins.DataSanityCheck() - Results" );
-					console.dir( holderStatus );
-					console.groupEnd();
-				}
+				;;; if( this.settings.ShowDebugInfo ) { 
+				;;; 	console.groupCollapsed( "$.TrackItPlugins.DataSanityCheck() - Results" );
+				;;; 	console.dir( holderStatus );
+				;;; 	console.groupEnd();
+				;;; }
 			}
 		},
+		
 		/**
 		 * This plugin will copy all prop's from each track key and copy its value into a corresponding eVar.
 		 * 
@@ -1022,7 +1058,8 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			 * @name Init
 			 * @memberOf TrackItPlugins.CopyPropToEVar
 			 */
-			Init: function() { this.ready( TrackItPlugins.CopyPropToEVar.Go ); },
+			Init: function() { this.ready( $.TrackItPlugins.CopyPropToEVar.Go ); },
+			
 			/**
 			 * Go function for the Copy prop to eVar. Implementation for this plugin is here.
 			 * 
@@ -1031,7 +1068,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			 * @memberOf TrackItPlugins.CopyPropToEVar
 			 */
 			Go: function() { 
-				if( this.settings.ShowDebugInfo ) { console.groupCollapsed( "TrackItPlugins.CopyPropToEVar.Go() - Results" ); }
+				;;; if( this.settings.ShowDebugInfo ) { console.groupCollapsed( "TrackItPlugins.CopyPropToEVar.Go() - Results" ); }
 							
 				var regex = new RegExp("(\\d+)","g");
 				var newEVars = {};
@@ -1047,10 +1084,10 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 					}
 				}
 				
-				if( this.settings.ShowDebugInfo ) { 
-					console.dir(newEVars);
-					console.groupEnd(); 
-				}
+				;;; if( this.settings.ShowDebugInfo ) { 
+				;;; 	console.dir(newEVars);
+				;;; 	console.groupEnd(); 
+				;;; }
 			}
 		},
 		/**
@@ -1086,11 +1123,12 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 					
 				// if the option "EnableUrlMappingWithDeepLink" is set and there's a match URL map, then skip UrlMapping for this load
 				if( document.location.hash.length > 0 && ! this.settings.EnableUrlMappingWithDeepLink ) {
-					if( this.settings.ShowDebugInfo ) { console.info("TrackItPlugins.CheckUrlMapping.Go() - Deep Link Detected, Disabling Url Mapping"); }
+					;;; if( this.settings.ShowDebugInfo ) { console.info("$.TrackItPlugins.CheckUrlMapping.Go() - Deep Link Detected, Disabling Url Mapping"); }
 				} else {	
 					// the feature is enabled, so show info that it's going to process
-					if( this.settings.ShowDebugInfo ) { console.group("TrackItPlugins.CheckUrlMapping.Go() - Enabled"); }
-					if( this.settings.ShowDebugInfo ) { console.info("TrackItPlugins.CheckUrlMapping.Go() - Check against URL: ", document.location.pathname); }
+					;;; if( this.settings.ShowDebugInfo ) { console.group("$.TrackItPlugins.CheckUrlMapping.Go() - Enabled"); }
+					;;; if( this.settings.ShowDebugInfo ) { console.info("$.TrackItPlugins.CheckUrlMapping.Go() - Check against URL: ", document.location.pathname); }
+					
 					var found = false;
 					// go through each track key
 					for( var trackKey in this.Data ) {
@@ -1108,18 +1146,18 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 								
 								if( !found && ( new RegExp( "^" + mapping + "$", "i" )).test( unescape(document.location.pathname) ) ) {
 									// if the test pasts as a regex match, then track this event
-									if( that.settings.ShowDebugInfo ) { console.info("TrackItPlugins.CheckUrlMapping.Go() - Found Key: '" + trackKey + "'"); }
-									that.track( trackKey, {});
+									;;; if( that.settings.ShowDebugInfo ) { console.info("TrackItPlugins.CheckUrlMapping.Go() - Found Key: '" + trackKey + "'"); }
+									that.track( trackKey );
 									found = true;
 								}
 							});
 						}
 					}
 					
-					if( this.settings.ShowDebugInfo && ! found ) { console.info("TrackItPlugins.CheckUrlMapping.Go() - Key Not Found!"); } 
+					;;; if( this.settings.ShowDebugInfo && ! found ) { console.info("TrackItPlugins.CheckUrlMapping.Go() - Key Not Found!"); } 
 				}
 				
-				if( this.settings.ShowDebugInfo ) { console.groupEnd(); }
+				;;; if( this.settings.ShowDebugInfo ) { console.groupEnd(); }
 			}
 		},
 		
@@ -1144,7 +1182,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 				
 				this.addCallback('afterTrack', function(options) { 
 					$.TrackItPlugins.RecordLastTrack.__LAST_REPORT = $.extend( $.TrackItPlugins.RecordLastTrack.__LAST_REPORT, options.parsedData);
-					if( this.settings.ShowDebugInfo ) { console.info("TrackItPlugins.RecordLastTrack() - Last data set saved!"); }
+					;;; if( this.settings.ShowDebugInfo ) { console.info("TrackItPlugins.RecordLastTrack() - Last data set saved!"); }
 				});
 			
 				this.Holders["LAST"] = $.TrackItPlugins.RecordLastTrack.LastHolder;
@@ -1161,7 +1199,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 				if( $.TrackItPlugins.RecordLastTrack.__LAST_REPORT && $.TrackItPlugins.RecordLastTrack.__LAST_REPORT[options.value] ) { 
 					return $.TrackItPlugins.RecordLastTrack.__LAST_REPORT[options.value];
 				} else {
-					if( options.instance.settings.ShowDebugInfo ) { console.warn( "TrackItPlugins.RecordLastTrack() - LAST value request not found '" + options.value + "'")}
+					;;; if( options.instance.settings.ShowDebugInfo ) { console.warn( "TrackItPlugins.RecordLastTrack() - LAST value request not found '" + options.value + "'")}
 				}
 			}
 		},
@@ -1192,7 +1230,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			 */
 			Go: function() {
 				var self = this;
-				if( self.settings.ShowDebugInfo ) { console.group( "$.TrackItPlugins.CssSelector() - Enabled'" ); }
+				;;; if( self.settings.ShowDebugInfo ) { console.group( "$.TrackItPlugins.CssSelector() - Enabled'" ); }
 				
 				// go through each track key
 				for( var trackKey in self.Data ) {
@@ -1203,21 +1241,19 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 				
 						// set our event
 						$(selector).live("click", function() { 
-							self.track(trackKey, { ele: this });
+							self.track( trackKey, { ele: this } );
 						});
 						
-						if( self.settings.ShowDebugInfo ) { console.info( '"', trackKey, '" --> "', selector, '"' ); }
+						;;; if( self.settings.ShowDebugInfo ) { console.info( '"', trackKey, '" --> "', selector, '"' ); }
 					}
 				}
 
-				if( self.settings.ShowDebugInfo ) { console.groupEnd(); }
+				;;; if( self.settings.ShowDebugInfo ) { console.groupEnd(); }
 			}
 		},
 		
-
 		/**
-		 * This plugin will allow the developer to use a "cssSelector" attribute to bind trackKeys to.
-		 * This is an alternative plan of action instead of embedding trackKey attributes onto each link.
+		 * This plugin will change all values to lowercase.
 		 */
 		ToLowerCase: {
 			/**
@@ -1229,7 +1265,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			 */
 			Init: function() {
 				this.addCallback( 'beforeTrack', $.TrackItPlugins.ToLowerCase.Go );
-				if( this.settings.ShowDebugInfo ) { console.info( "$.TrackItPlugins.ToLowerCase() - Enabled'" ); }
+				;;; if( this.settings.ShowDebugInfo ) { console.info( "$.TrackItPlugins.ToLowerCase() - Enabled'" ); }
 			},
 			
 			/** 
@@ -1240,9 +1276,10 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			 */
 			Go: function( options ) {
 				var self = this;
-				if( self.settings.ShowDebugInfo ) { console.group( "$.TrackItPlugins.ToLowerCase() - Executing'" ); }
+				;;; if( self.settings.ShowDebugInfo ) { console.group( "$.TrackItPlugins.ToLowerCase() - Executing'" ); }
 				
 				var parsedData = options.parsedData;
+				
 				// go through each track key
 				for( var key in parsedData ) {
 					if( $.isFunction( parsedData[key].toLowerCase ) ) {
@@ -1250,7 +1287,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 					}
 				}
 
-				if( self.settings.ShowDebugInfo ) { console.groupEnd(); }
+				;;; if( self.settings.ShowDebugInfo ) { console.groupEnd(); }
 			}
 		}
 	}
