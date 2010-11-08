@@ -1,8 +1,7 @@
 /*************************************************************************
  * jquery.TrackIt.plugins.js
  *************************************************************************
- * @author Aaron Lisman (Aaron.Lisman@ogilvy.com)
- * @author Adam S. Kirschner (AdamS.Kirschner@ogilvy.com)
+ * @author Adam S. Kirschner (me@adamskirschner.com)
  *************************************************************************
  */
 (function($){
@@ -69,13 +68,14 @@
 						}
 					}
 				}
-				if( this.settings.ShowDebugInfo ) { 
-					console.groupCollapsed( "TrackItPlugins.DataSanityCheck() - Results" );
-					console.dir( holderStatus );
-					console.groupEnd();
-				}
+				;;; if( this.settings.ShowDebugInfo ) { 
+				;;; 	console.groupCollapsed( "$.TrackItPlugins.DataSanityCheck() - Results" );
+				;;; 	console.dir( holderStatus );
+				;;; 	console.groupEnd();
+				;;; }
 			}
 		},
+		
 		/**
 		 * This plugin will copy all prop's from each track key and copy its value into a corresponding eVar.
 		 * 
@@ -90,7 +90,8 @@
 			 * @name Init
 			 * @memberOf TrackItPlugins.CopyPropToEVar
 			 */
-			Init: function() { this.ready( TrackItPlugins.CopyPropToEVar.Go ); },
+			Init: function() { this.ready( $.TrackItPlugins.CopyPropToEVar.Go ); },
+			
 			/**
 			 * Go function for the Copy prop to eVar. Implementation for this plugin is here.
 			 * 
@@ -99,7 +100,7 @@
 			 * @memberOf TrackItPlugins.CopyPropToEVar
 			 */
 			Go: function() { 
-				if( this.settings.ShowDebugInfo ) { console.groupCollapsed( "TrackItPlugins.CopyPropToEVar.Go() - Results" ); }
+				;;; if( this.settings.ShowDebugInfo ) { console.groupCollapsed( "TrackItPlugins.CopyPropToEVar.Go() - Results" ); }
 							
 				var regex = new RegExp("(\\d+)","g");
 				var newEVars = {};
@@ -115,10 +116,10 @@
 					}
 				}
 				
-				if( this.settings.ShowDebugInfo ) { 
-					console.dir(newEVars);
-					console.groupEnd(); 
-				}
+				;;; if( this.settings.ShowDebugInfo ) { 
+				;;; 	console.dir(newEVars);
+				;;; 	console.groupEnd(); 
+				;;; }
 			}
 		},
 		/**
@@ -154,11 +155,12 @@
 					
 				// if the option "EnableUrlMappingWithDeepLink" is set and there's a match URL map, then skip UrlMapping for this load
 				if( document.location.hash.length > 0 && ! this.settings.EnableUrlMappingWithDeepLink ) {
-					if( this.settings.ShowDebugInfo ) { console.info("TrackItPlugins.CheckUrlMapping.Go() - Deep Link Detected, Disabling Url Mapping"); }
+					;;; if( this.settings.ShowDebugInfo ) { console.info("$.TrackItPlugins.CheckUrlMapping.Go() - Deep Link Detected, Disabling Url Mapping"); }
 				} else {	
 					// the feature is enabled, so show info that it's going to process
-					if( this.settings.ShowDebugInfo ) { console.group("TrackItPlugins.CheckUrlMapping.Go() - Enabled"); }
-					if( this.settings.ShowDebugInfo ) { console.info("TrackItPlugins.CheckUrlMapping.Go() - Check against URL: ", document.location.pathname); }
+					;;; if( this.settings.ShowDebugInfo ) { console.group("$.TrackItPlugins.CheckUrlMapping.Go() - Enabled"); }
+					;;; if( this.settings.ShowDebugInfo ) { console.info("$.TrackItPlugins.CheckUrlMapping.Go() - Check against URL: ", document.location.pathname); }
+					
 					var found = false;
 					// go through each track key
 					for( var trackKey in this.Data ) {
@@ -176,18 +178,18 @@
 								
 								if( !found && ( new RegExp( "^" + mapping + "$", "i" )).test( unescape(document.location.pathname) ) ) {
 									// if the test pasts as a regex match, then track this event
-									if( that.settings.ShowDebugInfo ) { console.info("TrackItPlugins.CheckUrlMapping.Go() - Found Key: '" + trackKey + "'"); }
-									that.track( trackKey, {});
+									;;; if( that.settings.ShowDebugInfo ) { console.info("TrackItPlugins.CheckUrlMapping.Go() - Found Key: '" + trackKey + "'"); }
+									that.track( trackKey );
 									found = true;
 								}
 							});
 						}
 					}
 					
-					if( this.settings.ShowDebugInfo && ! found ) { console.info("TrackItPlugins.CheckUrlMapping.Go() - Key Not Found!"); } 
+					;;; if( this.settings.ShowDebugInfo && ! found ) { console.info("TrackItPlugins.CheckUrlMapping.Go() - Key Not Found!"); } 
 				}
 				
-				if( this.settings.ShowDebugInfo ) { console.groupEnd(); }
+				;;; if( this.settings.ShowDebugInfo ) { console.groupEnd(); }
 			}
 		},
 		
@@ -212,7 +214,7 @@
 				
 				this.addCallback('afterTrack', function(options) { 
 					$.TrackItPlugins.RecordLastTrack.__LAST_REPORT = $.extend( $.TrackItPlugins.RecordLastTrack.__LAST_REPORT, options.parsedData);
-					if( this.settings.ShowDebugInfo ) { console.info("TrackItPlugins.RecordLastTrack() - Last data set saved!"); }
+					;;; if( this.settings.ShowDebugInfo ) { console.info("TrackItPlugins.RecordLastTrack() - Last data set saved!"); }
 				});
 			
 				this.Holders["LAST"] = $.TrackItPlugins.RecordLastTrack.LastHolder;
@@ -229,7 +231,7 @@
 				if( $.TrackItPlugins.RecordLastTrack.__LAST_REPORT && $.TrackItPlugins.RecordLastTrack.__LAST_REPORT[options.value] ) { 
 					return $.TrackItPlugins.RecordLastTrack.__LAST_REPORT[options.value];
 				} else {
-					if( options.instance.settings.ShowDebugInfo ) { console.warn( "TrackItPlugins.RecordLastTrack() - LAST value request not found '" + options.value + "'")}
+					;;; if( options.instance.settings.ShowDebugInfo ) { console.warn( "TrackItPlugins.RecordLastTrack() - LAST value request not found '" + options.value + "'")}
 				}
 			}
 		},
@@ -260,7 +262,7 @@
 			 */
 			Go: function() {
 				var self = this;
-				if( self.settings.ShowDebugInfo ) { console.group( "$.TrackItPlugins.CssSelector() - Enabled'" ); }
+				;;; if( self.settings.ShowDebugInfo ) { console.groupCollapsed( "$.TrackItPlugins.CssSelector() - Enabled'" ); }
 				
 				// go through each track key
 				for( var trackKey in self.Data ) {
@@ -270,22 +272,22 @@
 					if( selector && selector.length > 0 ) {
 				
 						// set our event
-						$(selector).live("click", function() { 
-							self.track(trackKey, { ele: this });
-						});
-						
-						if( self.settings.ShowDebugInfo ) { console.info( '"', trackKey, '" --> "', selector, '"' ); }
+						(function(selector, trackKey) {
+							$(selector).live("click", function() { 
+								self.track( trackKey, { ele: this } );
+							});
+						}(selector,trackKey));
+
+						;;; if( self.settings.ShowDebugInfo ) { console.info( '"' + selector + '" --> "' + trackKey + '"' ); }
 					}
 				}
 
-				if( self.settings.ShowDebugInfo ) { console.groupEnd(); }
+				;;; if( self.settings.ShowDebugInfo ) { console.groupEnd(); }
 			}
 		},
 		
-
 		/**
-		 * This plugin will allow the developer to use a "cssSelector" attribute to bind trackKeys to.
-		 * This is an alternative plan of action instead of embedding trackKey attributes onto each link.
+		 * This plugin will change all values to lowercase.
 		 */
 		ToLowerCase: {
 			/**
@@ -297,7 +299,7 @@
 			 */
 			Init: function() {
 				this.addCallback( 'beforeTrack', $.TrackItPlugins.ToLowerCase.Go );
-				if( this.settings.ShowDebugInfo ) { console.info( "$.TrackItPlugins.ToLowerCase() - Enabled'" ); }
+				;;; if( this.settings.ShowDebugInfo ) { console.info( "$.TrackItPlugins.ToLowerCase() - Enabled'" ); }
 			},
 			
 			/** 
@@ -308,9 +310,10 @@
 			 */
 			Go: function( options ) {
 				var self = this;
-				if( self.settings.ShowDebugInfo ) { console.group( "$.TrackItPlugins.ToLowerCase() - Executing'" ); }
+				;;; if( self.settings.ShowDebugInfo ) { console.group( "$.TrackItPlugins.ToLowerCase() - Executing'" ); }
 				
 				var parsedData = options.parsedData;
+				
 				// go through each track key
 				for( var key in parsedData ) {
 					if( $.isFunction( parsedData[key].toLowerCase ) ) {
@@ -318,9 +321,8 @@
 					}
 				}
 
-				if( self.settings.ShowDebugInfo ) { console.groupEnd(); }
+				;;; if( self.settings.ShowDebugInfo ) { console.groupEnd(); }
 			}
 		}
 	}
 })(jQuery);
-

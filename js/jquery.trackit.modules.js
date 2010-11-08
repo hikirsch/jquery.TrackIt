@@ -1,8 +1,7 @@
 /*************************************************************************
  * jquery.TrackIt.modules.js
  *************************************************************************
- * @author Aaron Lisman (Aaron.Lisman@ogilvy.com)
- * @author Adam S. Kirschner (AdamS.Kirschner@ogilvy.com)
+ * @author Adam S. Kirschner (me@adamskirschner.com)
  *************************************************************************
  */
 (function($){
@@ -37,19 +36,35 @@
 			 * @param {Object} data the parsed data that should be reported.
 			 * @param {HtmlElement} ele the HtmlElement that the event fired from
 			 */
-			DoTrackEvent: function(data, ele){				
-				if( this.settings.ShowDebugInfo ) {
-					console.info(data);
-				} else {
-					pageTracker._trackEvent(data.category, data.action, data.opt_label, data.opt_value);
-				}
+			DoTrackEvent: function(data, ele){
+				;;; if( this.settings.TestMode && ( this.settings.ShowOnlyReportedData || this.settings.ShowDebugInfo ) ) {
+				;;; 	console.groupCollapsed( "TrackItModules.GoogleAnalytics.DoTrackEvent() - Track Event Skipped:" );
+				;;; 	console.dir({ "data": data });
+				;;; 	console.groupEnd();
+				;;; } else {
+						pageTracker._trackEvent(data.category, data.action, data.opt_label, data.opt_value);
+					
+				;;; 	if( this.settings.ShowDebugInfo || this.settings.ShowOnlyReportedData ) { 
+				;;; 		console.groupCollapsed("TrackItModules.GoogleAnalytics.DoTrackEvent() - Event tracked successfully.");
+				;;; 		console.dir({ "data": data });
+				;;;		 	console.groupEnd();
+				;;; 	}
+				;;; }
 			},
 			DoTrackPageView: function(data){
-				if (this.settings.ShowDebugInfo) {
-					console.info(data);
-				} else {
-					pageTracker._trackPageview(data.pageName);
-				}
+				;;; if( this.settings.TestMode && ( this.settings.ShowOnlyReportedData || this.settings.ShowDebugInfo ) ) {
+				;;; 	console.groupCollapsed( "TrackItModules.GoogleAnalytics.DoTrackPageView() - Track Event Skipped:" );
+				;;; 	console.dir({ "data": data });
+				;;; 	console.groupEnd();
+				;;; } else {
+						pageTracker._trackPageview(data.pageName);
+					
+				;;; 	if( this.settings.ShowDebugInfo || this.settings.ShowOnlyReportedData ) { 
+				;;; 		console.groupCollapsed("TrackItModules.GoogleAnalytics.DoTrackPageView() - Event tracked successfully.");
+				;;; 		console.dir({ "data": data });
+				;;;		 	console.groupEnd();
+				;;; 	}
+				;;; }
 			}
 		},
 		
@@ -74,7 +89,8 @@
 
 				// merge all the data into "s"
 				$.extend( s, data );
-								
+				
+				// TODO: create method in core to exclude data set
 				// these are TrackIt specific attributes used, we don't want this to merge with the tracker at all.
 				$.each( this.__EXCLUDE_VARS, function() { delete s[this] } );
 				
@@ -96,65 +112,64 @@
 				}
 
 				// if in test mode just show what would get reported
-				if( this.settings.TestMode && ( this.settings.ShowOnlyReportedData || this.settings.ShowDebugInfo ) ) {
-					console.groupCollapsed( "TrackItModules.Omniture.DoTrackEvent() - Track Event Skipped:" );
-					console.dir( {"s": s, "data": data} );
-					console.groupEnd();
-				} else {
-					// use a dud link and set the link url and link text if they exist
-					if (data['dudLinkUrl'] && data['dudLinkText'] ) { 
-						this.DudHtmlLink
-							.attr('href', data['customLinkUrl'] )
-							.text( data['dudLinkText'] );
-					}
-					
-					var dudLink = null;
-					if( this.DudHtmlLink && this.DudHtmlLink.length > 0 ) {
-						dudLink = this.DudHtmlLink.get(0);
-					}
-					
-					// either send in the HtmlLinkElement that was passed or the dud link
-					// customLinkName allows for a custom value 
-					s.tl( options.ele || dudLink, data.customLinkType || 'o', data.customLinkName || null);
+			;;; if( this.settings.TestMode && ( this.settings.ShowOnlyReportedData || this.settings.ShowDebugInfo ) ) {
+			;;; 	console.groupCollapsed( "TrackItModules.Omniture.DoTrackEvent() - Track Event Skipped:" );
+			;;; 	console.dir( {"s": s, "data": data} );
+			;;; 	console.groupEnd();
+			;;; } else {
+			 		// use a dud link and set the link url and link text if they exist
+			 		if (data['dudLinkUrl'] && data['dudLinkText'] ) { 
+			 			this.DudHtmlLink
+			 				.attr('href', data['customLinkUrl'] )
+			 				.text( data['dudLinkText'] );
+			 		}
 
-					if( this.settings.ShowDebugInfo || this.settings.ShowOnlyReportedData ) { 
-						console.groupCollapsed("TrackItModules.Omniture.DoTrackEvent() - Event tracked successfully.");
-						console.dir({"s": s, "data": data });
-						console.groupEnd();
-					}
-					
-					// clear the dud link
+			 		// either send in the HtmlLinkElement that was passed or the dud link
+			 		// customLinkName allows for a custom value 
+			 		s.tl( options.ele || this.DudHtmlLink.get(0), data.customLinkType || 'o', data.customLinkName || null );
+            
+			;;; 	if( this.settings.ShowDebugInfo || this.settings.ShowOnlyReportedData ) { 
+			;;; 		console.groupCollapsed("TrackItModules.Omniture.DoTrackEvent() - Event tracked successfully.");
+			;;; 		console.dir({"s": s, "data": data });
+			;;; 		console.groupEnd();
+			;;; 	}
+			
+			 		// clear the dud link
 					this.DudHtmlLink
 							.attr('href', '#nojs' )
 							.text( '' );
-							
+			
 					// clean up, clear out all the values that were set
-					for( var key in data ) { delete s[key]  };
-				}
+			 		for( var key in data ) { delete s[key]  };
+			;;; }
 			},
 			DoTrackPageView: function( data ) {
 			
 				// use existing s object from current page
 				$.extend( s, data );
 				
+				// TODO: create method in core to exclude data set
+				// these are TrackIt specific attributes used, we don't want this to merge with the tracker at all.
+				$.each( this.__EXCLUDE_VARS, function() { delete s[this] } );
+				
 				// if in test mode AND we're showing some sort of information, we show the data
-				if( this.settings.TestMode && ( this.settings.ShowOnlyReportedData || this.settings.ShowDebugInfo ) ) {
-					console.groupCollapsed("TrackItModules.Omniture.DoTrackPageView() - Page View tracking is being skipped.")
-					console.dir({"s": s, "data": data});
-					console.groupEnd();
-				} 
+			;;;	if( this.settings.TestMode && ( this.settings.ShowOnlyReportedData || this.settings.ShowDebugInfo ) ) {
+			;;;		console.groupCollapsed("TrackItModules.Omniture.DoTrackPageView() - Page View tracking is being skipped.")
+			;;;		console.dir({"s": s, "data": data});
+			;;;		console.groupEnd();
+			;;;	} 
 				
 				// if not in test mode, then actually track it
-				if( ! this.settings.TestMode ) {	
+			;;;	if( ! this.settings.TestMode ) {	
 					s.t();
 					
 					// decipher whether or not the tracked information should show
-					if( this.settings.ShowDebugInfo || this.settings.ShowOnlyReportedData ) { 
-						console.groupCollapsed("TrackItModules.Omniture.DoTrackPageView() - Page View tracked successfully.");
-						console.dir({"s": s, "data": data });
-						console.groupEnd();
-					}
-				}
+			;;;		if( this.settings.ShowDebugInfo || this.settings.ShowOnlyReportedData ) { 
+			;;;			console.groupCollapsed("TrackItModules.Omniture.DoTrackPageView() - Page View tracked successfully.");
+			;;;			console.dir({"s": s, "data": data });
+			;;;			console.groupEnd();
+			;;;		}
+			;;;	}
 				
 				// clean up, clear out all the values that were set
 				for( var key in data ) { delete s[key]  };
@@ -162,4 +177,3 @@
 		}
 	}
 })(jQuery);
-

@@ -1,8 +1,7 @@
 /*************************************************************************
- * jquery.TrackIt.js - Version 2.2.6
+ * jquery.TrackIt.js - Version 2.2.8
  *************************************************************************
- * @author Aaron Lisman (Aaron.Lisman@ogilvy.com)
- * @author Adam S. Kirschner (AdamS.Kirschner@ogilvy.com)
+ * @author Adam S. Kirschner (me@adamskirschner.com)
  * Copyright (C) 2010 
  *************************************************************************
  * This program is free software: you can redistribute it and/or modify
