@@ -28,7 +28,14 @@
  * @memberOf window
  */ 
 var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof o[p]==="object"){c[p]=cloneObj(o[p]);}else{c[p]=o[p];}}}return c;};
- 
+
+/**
+ * @name trim
+ * @return {string} a string with no whitespace on the sides
+ * @memberOf String
+ */
+String.prototype.trim = function() { return this.replace(/^\s+|\s+$/g,""); };
+
 /*************************************************************************
  * jquery.TrackIt.js
  *************************************************************************
@@ -507,11 +514,10 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 				options = {};
 			}
 		
-			// log that a track event has occured, show options and key that was caught
-			;;; if( this.settings.ShowDebugInfo ) { console.groupCollapsed( "$.TrackIt.track() - key='", key, "' options=", options); }
-			
 			// if the key is a valid track key
 			if( this.Data[key] !== undefined ) {	
+				// log that a track event has occured, show options and key that was caught
+				;;; if( this.settings.ShowDebugInfo ) { console.groupCollapsed( "$.TrackIt.track() - key='", key, "' options=", options); }
 			
 				// get the parsed version of the data (if there are placeholders) 
 				var parsedData = this.GetParsedData(key, options);
@@ -530,9 +536,14 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 				} else {
 					;;; if( this.settings.ShowDebugInfo ) { console.info("$.TrackIt.track() - beforeTrack returned false. Skipping track."); }
 				}
+
+				;;; if( this.settings.ShowDebugInfo ) { console.groupEnd(); }
+
+			} else {
+				;;; if( this.settings.ShowDebugInfo ) { console.error("$.TrackIt.track() - Key Not Found! - key='", key, "' options=", options ); }
 			}
 			
-			;;; if( this.settings.ShowDebugInfo ) { console.groupEnd(); }
+			
 		},
 		
 		/**
@@ -625,7 +636,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			 * @name $.TrackIt.prototype.Holders.TEXT
 			 * @memberOf $.TrackIt.prototype
 			 */
-			'TEXT': function() { return $(this).text(); },
+			'TEXT': function() { return $(this).text().trim(); },
 			
 			/**
 			 * title tag of the page
@@ -633,7 +644,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			 * @name $.TrackIt.prototype.Holders.TITLE
 			 * @memberOf $.TrackIt.prototype
 			 */
-			'TITLE': function() { return document.title; },
+			'TITLE': function() { return document.title.trim(); },
 			
 			/**
 			 * the "ele.text()" of the first HtmlHeadingElement
@@ -641,7 +652,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			 * @name $.TrackIt.prototype.Holders.H1
 			 * @memberOf $.TrackIt.prototype
 			 */
-			'H1': function() { return $("H1").text(); },
+			'H1': function() { return $("H1").text().trim(); },
 			
 			/**
 			 * the "ele.alt" attribute of a HtmlElement
@@ -784,9 +795,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			return str;
 		}
 	});	
-})(jQuery);
-
-/*************************************************************************
+})(jQuery);/*************************************************************************
  * jquery.TrackIt.modules.js
  *************************************************************************
  * @author Adam S. Kirschner (me@adamskirschner.com)
@@ -872,6 +881,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			 * @param {HtmlElement} ele the HtmlElement that the event fired from
 			 */
 			DoTrackEvent: function(data, options){
+				"s:nomunge";
 				// create new omniture instance
 				var s = s_gi(s_account);
 
@@ -932,7 +942,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			;;; }
 			},
 			DoTrackPageView: function( data ) {
-			
+				"s:nomunge";
 				// use existing s object from current page
 				$.extend( s, data );
 				
@@ -964,9 +974,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			}
 		}
 	}
-})(jQuery);
-
-/*************************************************************************
+})(jQuery);/*************************************************************************
  * jquery.TrackIt.plugins.js
  *************************************************************************
  * @author Adam S. Kirschner (me@adamskirschner.com)
@@ -1230,7 +1238,7 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 			 */
 			Go: function() {
 				var self = this;
-				;;; if( self.settings.ShowDebugInfo ) { console.group( "$.TrackItPlugins.CssSelector() - Enabled'" ); }
+				;;; if( self.settings.ShowDebugInfo ) { console.groupCollapsed( "$.TrackItPlugins.CssSelector() - Enabled'" ); }
 				
 				// go through each track key
 				for( var trackKey in self.Data ) {
@@ -1240,11 +1248,13 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 					if( selector && selector.length > 0 ) {
 				
 						// set our event
-						$(selector).live("click", function() { 
-							self.track( trackKey, { ele: this } );
-						});
-						
-						;;; if( self.settings.ShowDebugInfo ) { console.info( '"', trackKey, '" --> "', selector, '"' ); }
+						(function(selector, trackKey) {
+							$(selector).live("click", function() { 
+								self.track( trackKey, { ele: this } );
+							});
+						}(selector,trackKey));
+
+						;;; if( self.settings.ShowDebugInfo ) { console.info( '"' + selector + '" --> "' + trackKey + '"' ); }
 					}
 				}
 
@@ -1292,4 +1302,3 @@ var cloneObj=function(o){var c={};for(var p in o){if(o[p]!==undefined){if(typeof
 		}
 	}
 })(jQuery);
-

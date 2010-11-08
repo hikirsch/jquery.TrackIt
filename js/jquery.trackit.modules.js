@@ -84,6 +84,7 @@
 			 * @param {HtmlElement} ele the HtmlElement that the event fired from
 			 */
 			DoTrackEvent: function(data, options){
+				"s:nomunge";
 				// create new omniture instance
 				var s = s_gi(s_account);
 
@@ -144,7 +145,7 @@
 			;;; }
 			},
 			DoTrackPageView: function( data ) {
-			
+				"s:nomunge";
 				// use existing s object from current page
 				$.extend( s, data );
 				
